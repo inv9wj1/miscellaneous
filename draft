@@ -1,0 +1,7 @@
+EZD1287I TTLS Error RC:  406 Initial Handshake 503                   
+  LOCAL: 170.186.39.6..13116                                         
+  REMOTE: 10.242.161.12..53744                                       
+  JOBNAME: T$UBC11A RULE: $GFS.Inbound 14                            
+  USERID: TFDR GRPID: 00000004 ENVID: 00008709 CONNID: 0314E6DC      
+EZZ6034I TCP3270 CONN 0314E6E7 LU **N/A**  CONN DROP  ERR 1030 504   
+  IP..PORT: 10.75.0.181..40762 
