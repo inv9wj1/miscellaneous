@@ -1,0 +1,153 @@
+1. Save new file in the below path
+C:\Rajesh Files\personal\GANESH FILES\prod\client_v3\src\hooks\Delayed.jsx
+2.Import the Hook in widget.js
+Line 1:
+import React,{useState} from 'react'
+import Delayed from '../../hooks/Delayed';
+
+3.Define these three constants under   const [visible, setVisible] = useState(false);
+
+  const [mTitle, setMTitle] = useState("");
+  const [mLabels, setMLabels] = useState([]);
+  const [mData, setMData] = useState([]);
+
+4.Replace the method handle click as below
+
+  const handleClick = (title,labels,data) => {
+    setVisible(!visible);
+    setMTitle(title);
+    setMLabels(labels);
+    setMData(data);
+ }
+
+5. Replace the single widget as below (compare two files)
+
+  let singleWidget = (titleIn, widgetDataObj) => {
+   
+
+    let {labels, data, MainPercent,  MainPercentDiff} = widgetDataObj;
+
+    let incolor = (MainPercent >= 80) ? 'danger' : (MainPercent >= 60)? 'warning' : 'info';
+    console.log(widgetDataObj);
+
+    return (
+      <>
+      <CWidgetStatsA
+       onClick={() => handleClick(titleIn,labels,data)}
+        className="mb-4"
+        color={incolor}
+        value={
+          <>
+            {MainPercent}%{' '}
+            <span className="fs-6 fw-normal">
+              ({MainPercentDiff}% <CIcon icon={(MainPercentDiff >= 0) ? cilArrowTop : cilArrowBottom  } />)
+            </span>
+          </>
+        }
+        title={titleIn}
+        chart={
+          <CChartLine
+            className="mt-3 mx-3"
+            style={{ height: '70px' }}
+            data={{
+              labels: labels,
+              datasets: [
+                {
+                  // label: {titleIn},
+                  backgroundColor: 'transparent',
+                  borderColor: 'rgba(255,255,255,.55)',
+                  pointBackgroundColor: getStyle(`--cui-${incolor}`),
+                  data: data,
+                },
+              ],
+            }}
+            options={{
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+              maintainAspectRatio: false,
+              scales: {
+                x: {
+                  grid: {
+                    display: false,
+                    drawBorder: false,
+                  },
+                  ticks: {
+                    display: false,
+                  },
+                },
+                y: {
+                  min: 30,
+                  max: 89,
+                  display: false,
+                  grid: {
+                    display: false,
+                  },
+                  ticks: {
+                    display: false,
+                  },
+                },
+              },
+              elements: {
+                line: {
+                  borderWidth: 1,
+                  tension: 0.4,
+                },
+                point: {
+                  radius: 4,
+                  hitRadius: 10,
+                  hoverRadius: 4,
+                },
+              },
+            }}
+          />
+        }
+      />{
+<CModal visible={visible} onClose={() => setVisible(false)}>
+      <CModalHeader onClose={() => setVisible(false)}>
+        <CModalTitle>{mTitle}</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+      <Delayed waitBeforeShow={5000}>
+      <CChart
+  type="line" 
+  data={{
+    labels: mLabels,
+    datasets: [
+      {
+         label: mTitle,
+        backgroundColor: 'transparent',
+        borderColor: 'rgba(255,255,100,.55)',
+        pointBackgroundColor: getStyle(`--cui-${incolor}`),
+        data: mData,
+      },
+    ],
+  }}
+  options={{
+    elements: {
+      line: {
+        borderWidth: 1,
+        tension: 0.4,
+      },
+      point: {
+        radius: 4,
+        hitRadius: 10,
+        hoverRadius: 4,
+      },
+    },
+  }}
+/></Delayed>
+</CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={() => setVisible(false)}>
+          Close
+        </CButton>
+      </CModalFooter>
+    </CModal>
+
+  }
+
+      </>)
+  }
