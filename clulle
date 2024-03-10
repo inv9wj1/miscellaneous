@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chocolate Factory</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom Styles -->
+  <style>
+    body {
+      background-color: #f8f9fa;
+      color: #343a40;
+    }
+
+    .jumbotron {
+      background-color: #6c757d;
+      color: #ffffff;
+    }
+
+    .chocolate-section {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chocolate-section img {
+      border-radius: 5px;
+    }
+
+    h1, h3 {
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container mt-5">
+    <div class="jumbotron text-center">
+      <h1 class="display-4">Welcome to Our Chocolate Factory</h1>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <img src="https://via.placeholder.com/600" alt="Chocolate Factory Image" class="img-fluid">
+      </div>
+      <div class="col-md-6">
+        <p>
+          We take pride in crafting delicious chocolates at our state-of-the-art factory. Our skilled chocolatiers use the finest ingredients to create a wide range of mouth-watering treats.
+        </p>
+        <p>
+          Explore the magical world of chocolate-making with us, and experience the joy of indulging in high-quality, handcrafted chocolates.
+        </p>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+      <div class="col-md-4 chocolate-section">
+        <img src="https://via.placeholder.com/400" alt="Chocolate 1" class="img-fluid mb-3">
+        <h3>Dark Chocolate Delight</h3>
+        <p>Experience the rich and intense flavor of our premium dark chocolate.</p>
+      </div>
+      <div class="col-md-4 chocolate-section">
+        <img src="https://via.placeholder.com/400" alt="Chocolate 2" class="img-fluid mb-3">
+        <h3>Milk Chocolate Bliss</h3>
+        <p>Indulge in the creamy goodness of our exquisite milk chocolate creations.</p>
+      </div>
+      <div class="col-md-4 chocolate-section">
+        <img src="https://via.placeholder.com/400" alt="Chocolate 3" class="img-fluid mb-3">
+        <h3>White Chocolate Elegance</h3>
+        <p>Experience the smooth and velvety taste of our white chocolate delicacies.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
