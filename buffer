@@ -1,0 +1,31 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+const PORT = 3000;
+
+let responseData = null;
+
+// Middleware to parse JSON body
+app.use(bodyParser.json());
+
+// POST endpoint to receive data and save it
+app.post('/saveResponse', (req, res) => {
+    // Assuming the incoming data is in JSON format
+    responseData = req.body;
+    res.status(200).send('Response saved successfully');
+});
+
+// GET endpoint to serve the saved response data
+app.get('/getResponse', (req, res) => {
+    if (responseData) {
+        res.status(200).json(responseData);
+    } else {
+        res.status(404).send('No response data available');
+    }
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
