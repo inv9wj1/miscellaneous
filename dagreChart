@@ -1,48 +1,116 @@
-{"success":"true","time":"00:0","command
-Response":{"prodjobs":[{"jobName":"TPTA5
-CUT","category":"PTS","client":"Null","s
-laTime":"064/1700","status":" WAIT
-","ExpectedTimeToStart":"064/1510","pare
-ntNode":"","comment":"dummy"},{"jobName"
-:"TMPA259D","category":"PTS","client":"N
-ull","slaTime":"064/1700","status":" LAT
-E      ","ExpectedTimeToStart":"064/1510
-","parentNode":"TPTA5CUT","comment":"dum
-my"},{"jobName":"TMPA2906","category":"P
-TS","client":"Null","slaTime":"064/1700"
-,"status":" LATE      ","ExpectedTimeToS
-tart":"064/1510","parentNode":"TPTA5CUT"
-,"comment":"dummy"},{"jobName":"TPTA5CUT
-","category":"PTS","client":"Null","slaT
-ime":"064/1700","status":" LATE      ","
-ExpectedTimeToStart":"064/1510","parentN
-ode":"","comment":"dummy"},{"jobName":"T
-AS#AM10","category":"INTERCHANGE","clien
-t":"MASTERCARD","slaTime":"064/1700","st
-atus":" LATE      ","ExpectedTimeToStart
-":"064/1510","parentNode":"TPTA5CUT","co
-mment":"dummy"},{"jobName":"TAS#AM18","c
-ategory":"INTERCHANGE","client":"AMEX","
-slaTime":"064/1700","status":" LATE
- ","ExpectedTimeToStart":"064/1510","par
-entNode":"TPTA5CUT","comment":"dummy"},{
-"jobName":"TAS#130A","category":"FUNDING
-","client":"PNCBANK","slaTime":"064/1700
-","status":" LATE      ","ExpectedTimeTo
-Start":"064/1510","parentNode":"TMPA259D
-,TMPA2906","comment":"dummy"},{"jobName"
-:"TASM004B","category":"FUNDING","client
-":"PATHWARDBANK","slaTime":"064/1700","s
-tatus":" LATE      ","ExpectedTimeToStar
-t":"064/1510","parentNode":"TMPA259D,TMP
-A2906","comment":"dummy"},{"jobName":"TA
-SM005B","category":"FUNDING","client":"P
-ATHWARDBANK","slaTime":"064/1700","statu
-s":" LATE      ","ExpectedTimeToStart":"
-064/1510","parentNode":"TMPA259D,TMPA290
-6","comment":"dummy"},{"jobName":"TASM00
-6B","category":"FUNDING","client":"PATHW
-ARDBANK","slaTime":"064/1700","status":"
- LATE      ","ExpectedTimeToStart":"064/
-1510","parentNode":"TMPA259D,TMPA2906","
-comment":"dummy"}]}}
+{
+  "success": "true",
+  "time": "00:0",
+  "commandResponse": {
+    "prodjobs": [
+      {
+        "jobName": "TPTA5CUT",
+        "category": "PTS",
+        "client": "Null",
+        "slaTime": "064/1700",
+        "status": "WAIT",
+        "ExpectedTimeToStart": "064/1510",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TMPA259D",
+        "category": "PTS",
+        "client": "Null",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TPTA5CUT",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TMPA2906",
+        "category": "PTS",
+        "client": "Null",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TPTA5CUT",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TPTA5CUT",
+        "category": "PTS",
+        "client": "Null",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TAS#AM10",
+        "category": "INTERCHANGE",
+        "client": "MASTERCARD",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TPTA5CUT",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TAS#AM18",
+        "category": "INTERCHANGE",
+        "client": "AMEX",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TPTA5CUT",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TAS#130A",
+        "category": "FUNDING",
+        "client": "PNCBANK",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TMPA259D,TMPA2906",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TASM004B",
+        "category": "FUNDING",
+        "client": "PATHWARDBANK",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TMPA259D,TMPA2906",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TASM005B",
+        "category": "FUNDING",
+        "client": "PATHWARDBANK",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TMPA259D,TMPA2906",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TASM006B",
+        "category": "FUNDING",
+        "client": "PATHWARDBANK",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TMPA259D,TMPA2906",
+        "comment": "dummy"
+      },
+      {
+        "jobName": "TAS#WT6F",
+        "category": "FUNDING",
+        "client": "WELLS",
+        "slaTime": "064/1700",
+        "status": "LATE",
+        "ExpectedTimeToStart": "064/1510",
+        "parentNode": "TMPA259D,TMPA2906",
+        "comment": "dummy"
+      }
+    ]
+  }
+}
