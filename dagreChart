@@ -10,13 +10,9 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
 } from "reactflow";
-//import ReactFlow, { MiniMap, Controls, Background, DagreFlow, ConnectionLineType, useNodesState, useEdgesState, addEdge, Panel } from 'react-flow-renderer';
 import dagre from "dagre";
 import "reactflow/dist/style.css";
 import axiosConnect from "./api/axiosConnect";
-
-// Assuming we have imported the JSON data as 'jsonData'
-// import jsonData from "./output.json";
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -24,9 +20,7 @@ const nodeWidth = 300;
 const nodeHeight = 150;
 
 const layoutGraph = (nodes, edges, direction = "TB") => {
-  console.log("Direction:   " + direction);
   const isHorizontal = direction === "LR";
-  console.log("isHorizontal:   " + isHorizontal);
   dagreGraph.setGraph({ rankdir: direction });
 
   nodes.forEach((node) => {
@@ -59,7 +53,6 @@ const StatusNode = ({ data }) => {
     LATE: "red",
     RUNNING: "blue",
     WAIT: "yellow",
-    // More statuses and their corresponding colors...
   };
   const jobStatus = data.status;
   const backgroundColor = colorMap[jobStatus] || "gray"; // Fallback color
@@ -90,26 +83,28 @@ const getNodesAndEdges = (data, direction) => {
   const edges = [];
   const position = { x: 0, y: 0 };
   const edgeType = "smoothstep";
+  
+  if (!data || !data.commandResponse || !data.commandResponse.prodjobs) {
+    console.error("Invalid data structure:", data);
+    return { nodes, edges };
+  }
+  
   const prodJobs = data.commandResponse.prodjobs;
-  var nodeType = "statusNode";
+  let nodeType = "statusNode";
 
   prodJobs.forEach((job) => {
-    if (job.parentNode.trim() != "") {
-      nodeType = "statusNode";
-    } else {
-      nodeType = "statusNode";
-    }
+    nodeType = "statusNode";
 
     nodes.push({
       id: job.jobName,
-      type: nodeType, // or a custom type if you have created custom nodes
+      type: nodeType,
       data: {
         label: "Job Name: " + job.jobName,
         category: job.category,
         status: job.status,
         job,
       },
-      position: position, // positions will be calculated by the Dagre layout
+      position: position,
     });
 
     if (job.parentNode) {
@@ -141,14 +136,13 @@ const DagreFlowChart = () => {
           fileName: "SYSSHR.ZOOPS.TEST(TEST)",
         },
         headers: {
-          "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+          "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
           "Access-Control-Allow-Headers":
-            "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+            "Origin, X-Requested-With, Content-Type, Accept, Authorization",
         },
       })
       .then((response) => {
-        console.log("Data received from getFileSpaceData: " + response.data);
         if (response.data === 1) {
           axiosConnect
             .get("/getFileData2", {
@@ -156,25 +150,19 @@ const DagreFlowChart = () => {
                 fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
               },
               headers: {
-                "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
-                "Access-Control-Allow-Methods":
-                  "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
                 "Access-Control-Allow-Headers":
-                  "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization",
               },
             })
             .then((response) => {
-              console.log(response);
-              console.log(
-                "Data received from getFileSpaceData: " + response.data
-              );
               const jsonObject1 = response.data.replace(/\s/g, "");
               const jsonObject = JSON.parse(jsonObject1);
-              console.log(jsonObject1);
-              setJsonData(jsonObject1);
+              setJsonData(jsonObject);
             })
             .catch((err) => {
-              console.log(err);
+              console.error(err);
             });
 
           axiosConnect
@@ -183,16 +171,15 @@ const DagreFlowChart = () => {
               fileContent: "0",
             })
             .then((response) => {
-              console.log("wrted to test");
-              console.log(response);
+              console.log("wrote to test", response);
             })
             .catch((err) => {
-              console.log(err);
+              console.error(err);
             });
         }
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   }, []);
 
@@ -242,7 +229,7 @@ const DagreFlowChart = () => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        nodeTypes={{ statusNode: StatusNode }} // Register the statusNode
+        nodeTypes={{ statusNode: StatusNode }}
         fitView
       >
         <Controls />
