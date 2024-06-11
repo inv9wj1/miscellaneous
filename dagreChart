@@ -5,13 +5,7 @@ At C:\Users\F8512PV\desktop\simulate_keystroke.ps1:1 char:10
     + CategoryInfo          : InvalidArgument: (:) [Add-Type], ParameterBindingException
     + FullyQualifiedErrorId : MissingArgument,Microsoft.PowerShell.Commands.AddTypeCommand
  
-System.Windows.Forms : The term 'System.Windows.Forms' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling 
-of the name, or if a path was included, verify that the path is correct and try again.
-+ System.Windows.Forms
-+ ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : ObjectNotFound: (System.Windows.Forms:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
- 
+System.Windows.Forms
 Unable to find type [System.Windows.Forms.SendKeys].
 At C:\Users\F8512PV\desktop\simulate_keystroke.ps1:3 char:1
 + [System.Windows.Forms.SendKeys]::Send
@@ -19,7 +13,7 @@ At C:\Users\F8512PV\desktop\simulate_keystroke.ps1:3 char:1
     + CategoryInfo          : InvalidOperation: (System.Windows.Forms.SendKeys:TypeName) [], RuntimeException
     + FullyQualifiedErrorId : TypeNotFound
  
-Wait : The term 'Wait' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was    
+Wait : The term 'Wait' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
 included, verify that the path is correct and try again.
 At C:\Users\F8512PV\desktop\simulate_keystroke.ps1:4 char:1
 + Wait("âŒƒs")
