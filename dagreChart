@@ -1,249 +1,28 @@
-import React, { useState, useEffect, useCallback } from "react";
-import ReactFlow, {
-  addEdge,
-  Controls,
-  Background,
-  MiniMap,
-  ConnectionLineType,
-  Panel,
-  Handle,
-  useNodesState,
-  useEdgesState,
-} from "reactflow";
-import dagre from "dagre";
-import "reactflow/dist/style.css";
-import axiosConnect from "./api/axiosConnect";
-
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
-const nodeWidth = 300;
-const nodeHeight = 150;
-
-const layoutGraph = (nodes, edges, direction = "TB") => {
-  const isHorizontal = direction === "LR";
-  dagreGraph.setGraph({ rankdir: direction });
-
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
-
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  nodes.forEach((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? "left" : "top";
-    node.sourcePosition = isHorizontal ? "right" : "bottom";
-
-    node.position = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
-    };
-  });
-
-  return { nodes, edges };
-};
-
-const StatusNode = ({ data }) => {
-  const colorMap = {
-    COMPLETE: "green",
-    LATE: "red",
-    RUNNING: "blue",
-    WAIT: "yellow",
-  };
-  const jobStatus = data.status;
-  const backgroundColor = colorMap[jobStatus] || "gray"; // Fallback color
-
-  return (
-    <div style={{ padding: 10, borderRadius: 5, backgroundColor }}>
-      <Handle type="target" position="top" />
-
-      <div className="auto-width-node">
-        <div className="header-node-header">
-          <label>{data.label}</label>
-        </div>
-        <div className="flex-column header-node-body">
-          <span> Job Category: {data.category}</span>
-          <br />
-          <strong>
-            <span>Job Status: {data.status}</span>
-          </strong>
-        </div>
-      </div>
-      <Handle type="source" position="bottom" />
-    </div>
-  );
-};
-
-const getNodesAndEdges = (data, direction) => {
-  const nodes = [];
-  const edges = [];
-  const position = { x: 0, y: 0 };
-  const edgeType = "smoothstep";
-  
-  if (!data || !data.commandResponse || !data.commandResponse.prodjobs) {
-    console.error("Invalid data structure:", data);
-    return { nodes, edges };
-  }
-  
-  const prodJobs = data.commandResponse.prodjobs;
-  let nodeType = "statusNode";
-
-  prodJobs.forEach((job) => {
-    nodeType = "statusNode";
-
-    nodes.push({
-      id: job.jobName,
-      type: nodeType,
-      data: {
-        label: "Job Name: " + job.jobName,
-        category: job.category,
-        status: job.status,
-        job,
-      },
-      position: position,
-    });
-
-    if (job.parentNode) {
-      const parentNodes = job.parentNode.split(",");
-      parentNodes.forEach((parent) => {
-        edges.push({
-          id: `${parent}-${job.jobName}`,
-          source: parent,
-          target: job.jobName,
-          type: edgeType,
-          animated: true,
-        });
-      });
-    }
-  });
-
-  return layoutGraph(nodes, edges, direction);
-};
-
-const DagreFlowChart = () => {
-  const [jsonData, setJsonData] = useState(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-  useEffect(() => {
-    axiosConnect
-      .get("/getFileData2", {
-        params: {
-          fileName: "SYSSHR.ZOOPS.TEST(TEST)",
-        },
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers":
-            "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-        },
-      })
-      .then((response) => {
-        if (response.data === 1) {
-          axiosConnect
-            .get("/getFileData2", {
-              params: {
-                fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
-              },
-              headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers":
-                  "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-              },
-            })
-            .then((response) => {
-              const jsonObject1 = response.data.replace(/\s/g, "");
-              const jsonObject = JSON.parse(jsonObject1);
-              setJsonData(jsonObject);
-            })
-            .catch((err) => {
-              console.error(err);
-            });
-
-          axiosConnect
-            .post("/saveSingleFile", {
-              fileName: "SYSSHR.ZOOPS.TEST(TEST)",
-              fileContent: "0",
-            })
-            .then((response) => {
-              console.log("wrote to test", response);
-            })
-            .catch((err) => {
-              console.error(err);
-            });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (jsonData) {
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getNodesAndEdges(
-        jsonData,
-        "TB"
-      );
-      setNodes([...layoutedNodes]);
-      setEdges([...layoutedEdges]);
-    }
-  }, [jsonData]);
-
-  const onConnect = useCallback(
-    (params) =>
-      setEdges((eds) =>
-        addEdge(
-          { ...params, type: ConnectionLineType.SmoothStep, animated: true },
-          eds
-        )
-      ),
-    []
-  );
-
-  const onLayout = useCallback(
-    (direction) => {
-      if (jsonData) {
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getNodesAndEdges(
-          jsonData,
-          direction
-        );
-        setNodes([...layoutedNodes]);
-        setEdges([...layoutedEdges]);
-      }
-    },
-    [jsonData]
-  );
-
-  return (
-    <div style={{ height: 500 }}>
-      <ReactFlow
-        style={{ height: 500, width: 500 }}
-        connectionLineType={ConnectionLineType.SmoothStep}
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={{ statusNode: StatusNode }}
-        fitView
-      >
-        <Controls />
-        <Panel position="top-right">
-          <button className="editbutton" onClick={() => onLayout("TB")}>
-            vertical layout
-          </button>
-          <button className="editbutton" onClick={() => onLayout("LR")}>
-            horizontal layout
-          </button>
-        </Panel>
-      </ReactFlow>
-    </div>
-  );
-};
-
-export default DagreFlowChart;
+Add-Type : Missing an argument for parameter 'AssemblyName'. Specify a parameter of type 'System.String[]' and try again.
+At C:\Users\F8512PV\desktop\simulate_keystroke.ps1:1 char:10
++ Add-Type -AssemblyName
++          ~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Add-Type], ParameterBindingException
+    + FullyQualifiedErrorId : MissingArgument,Microsoft.PowerShell.Commands.AddTypeCommand
+ 
+System.Windows.Forms : The term 'System.Windows.Forms' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling 
+of the name, or if a path was included, verify that the path is correct and try again.
++ System.Windows.Forms
++ ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (System.Windows.Forms:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+Unable to find type [System.Windows.Forms.SendKeys].
+At C:\Users\F8512PV\desktop\simulate_keystroke.ps1:3 char:1
++ [System.Windows.Forms.SendKeys]::Send
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Windows.Forms.SendKeys:TypeName) [], RuntimeException
+    + FullyQualifiedErrorId : TypeNotFound
+ 
+Wait : The term 'Wait' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was    
+included, verify that the path is correct and try again.
+At C:\Users\F8512PV\desktop\simulate_keystroke.ps1:4 char:1
++ Wait("âŒƒs")
++ ~~~~
+    + CategoryInfo          : ObjectNotFound: (Wait:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
