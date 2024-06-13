@@ -1,35 +1,16 @@
-const { exec } = require('child_process');
-
-// Function to simulate keystrokes
-function simulateKeystroke() {
-    // Generate a random string of 35 different letters
-    const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-    const randomLetters = [];
-    while (randomLetters.length < 35) {
-        const randomIndex = Math.floor(Math.random() * letters.length);
-        const randomLetter = letters[randomIndex];
-        if (!randomLetters.includes(randomLetter)) {
-            randomLetters.push(randomLetter);
-        }
-    }
-    const randomString = randomLetters.join('');
-
-    // Execute PowerShell command to simulate keystrokes with the random string
-    exec(`powershell.exe -Command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.SendKeys]::SendWait('${randomString}')"`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`Keystroke simulation successful: ${randomString}`);
-    });
-}
-
-// Simulate keystroke every 2 minutes
-setInterval(() => {
-    simulateKeystroke();
-    console.log("It's been triggered after 2 minutes");
-}, 2 * 60 * 1000);
+//MARKAA01 JOB (CS,1000,SYSTEMS,102),'MQ',CLASS=9, 
+//  MSGCLASS=A,MSGLEVEL=(1,1),NOTIFY=&SYSUID,      
+//  SCHENV=TPLA,                                   
+// USER=FDO0027                                    
+//*                                                
+//STEP01   EXEC PGM=CAL2X2WB,                      
+//         PARM='SYS1,UC07,,,OUTDD'                
+//SYSPRINT DD SYSOUT=*                             
+//ERRORS   DD SYSOUT=*                             
+//OUTDD    DD SYSOUT=*                             
+//SYSIN    DD *                                    
+/LOGON FDO0027,rajni123                            
+LRLOG,JOB=*,ST=EXCP,SPAN=24                        
+LQ,JOB=TPTA5CUT                                    
+/LOGOFF                                            
+//*                                                
