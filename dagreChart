@@ -1,16 +1,306 @@
-//MARKAA01 JOB (CS,1000,SYSTEMS,102),'MQ',CLASS=9, 
-//  MSGCLASS=A,MSGLEVEL=(1,1),NOTIFY=&SYSUID,      
-//  SCHENV=TPLA,                                   
-// USER=FDO0027                                    
-//*                                                
-//STEP01   EXEC PGM=CAL2X2WB,                      
-//         PARM='SYS1,UC07,,,OUTDD'                
-//SYSPRINT DD SYSOUT=*                             
-//ERRORS   DD SYSOUT=*                             
-//OUTDD    DD SYSOUT=*                             
-//SYSIN    DD *                                    
-/LOGON FDO0027,rajni123                            
-LRLOG,JOB=*,ST=EXCP,SPAN=24                        
-LQ,JOB=TPTA5CUT                                    
-/LOGOFF                                            
-//*                                                
+import React, { useState, useEffect, useCallback } from "react";
+import ReactFlow, {
+  addEdge,
+  Controls,
+  Background,
+  MiniMap,
+  ConnectionLineType,
+  Panel,
+  Handle,
+  useNodesState,
+  useEdgesState,
+} from "reactflow";
+//import ReactFlow, { MiniMap, Controls, Background, DagreFlow, ConnectionLineType, useNodesState, useEdgesState, addEdge, Panel } from 'react-flow-renderer';
+import dagre from "dagre";
+import "reactflow/dist/style.css";
+import axiosConnect from "./api/axiosConnect";
+
+// Assuming we have imported the JSON data as 'jsonData'
+// import jsonData from "./output.json";
+
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
+const nodeWidth = 300;
+const nodeHeight = 150;
+
+const layoutGraph = (nodes, edges, direction = "TB") => {
+  console.log("Direction:   " + direction);
+  const isHorizontal = direction === "LR";
+  console.log("isHorizontal:   " + isHorizontal);
+  dagreGraph.setGraph({ rankdir: direction });
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  nodes.forEach((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    node.targetPosition = isHorizontal ? "left" : "top";
+    node.sourcePosition = isHorizontal ? "right" : "bottom";
+
+    node.position = {
+      x: nodeWithPosition.x - nodeWidth / 2,
+      y: nodeWithPosition.y - nodeHeight / 2,
+    };
+  });
+
+  return { nodes, edges };
+};
+
+const StatusNode = ({ data }) => {
+  const colorMap = {
+    COMPLETE: "green",
+    LATE: "red",
+    RUNNING: "blue",
+    WAIT: "yellow",
+    // More statuses and their corresponding colors...
+  };
+  const jobStatus = data.status;
+  const backgroundColor = colorMap[jobStatus] || "gray"; // Fallback color
+
+  return (
+    <div style={{ padding: 10, borderRadius: 5, backgroundColor }}>
+      <Handle type="target" position="top" />
+
+      <div className="auto-width-node">
+        <div className="header-node-header">
+          <label>{data.label}</label>
+        </div>
+        <div className="flex-column header-node-body">
+          <span> Job Category: {data.category}</span>
+          <br />
+          <strong>
+            <span>Job Status: {data.status}</span>
+          </strong>
+        </div>
+      </div>
+      <Handle type="source" position="bottom" />
+    </div>
+  );
+};
+
+const getNodesAndEdges = (data, direction) => {
+  const nodes = [];
+  const edges = [];
+  const position = { x: 0, y: 0 };
+  const edgeType = "smoothstep";
+
+  if (!data || !data.commandResponse || !data.commandResponse.prodjobs) {
+    console.error("Invalid data structure:", data);
+    return { nodes, edges };
+  }
+
+  console.log("command response is " + data.commandResponse.prodJobs);
+  const prodJobs = data.commandResponse.prodjobs;
+  var nodeType = "statusNode";
+
+  prodJobs.forEach((job) => {
+    if (job.parentNode.trim() != "") {
+      nodeType = "statusNode";
+    } else {
+      nodeType = "statusNode";
+    }
+
+    nodes.push({
+      id: job.jobName,
+      type: nodeType, // or a custom type if you have created custom nodes
+      data: {
+        label: "Job Name: " + job.jobName,
+        category: job.category,
+        status: job.status,
+        job,
+      },
+      position: position, // positions will be calculated by the Dagre layout
+    });
+
+    if (job.parentNode) {
+      const parentNodes = job.parentNode.split(",");
+      parentNodes.forEach((parent) => {
+        edges.push({
+          id: `${parent}-${job.jobName}`,
+          source: parent,
+          target: job.jobName,
+          type: edgeType,
+          animated: true,
+        });
+      });
+    }
+  });
+
+  return layoutGraph(nodes, edges, direction);
+};
+
+const DagreFlowChart = () => {
+  const [jsonData, setJsonData] = useState(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  useEffect(() => {
+    // Define the function to be triggered
+    loadFileSpaceData();
+
+    // Call loadFileSpaceData every five seconds
+    const interval = setInterval(loadFileSpaceData, 5000);
+    console.log("triggering !!!");
+    // Clear the interval when the component unmounts
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array ensures that useEffect runs only once on component mount
+
+  const loadFileSpaceData = () => {
+    axiosConnect
+      .get("/getFileData2", {
+        params: {
+          fileName: "SYSSHR.ZOOPS.TEST(TEST)",
+        },
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+        },
+      })
+      .then((response) => {
+        console.log("Data received from getFileSpaceData: " + response.data);
+        if (response.data === 1) {
+          axiosConnect
+            .get("/getFileData2", {
+              params: {
+                fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
+              },
+              headers: {
+                "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+                "Access-Control-Allow-Methods":
+                  "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers":
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+              },
+            })
+            .then((response) => {
+              console.log(response);
+              console.log(
+                "Data received from getFileSpaceData: " + response.data
+              );
+              const jsonObject1 = response.data.replace(/\s/g, "");
+              const jsonObject = JSON.parse(jsonObject1);
+              console.log(jsonObject);
+              setJsonData(jsonObject);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+
+          axiosConnect
+            .post("/saveSingleFile", {
+              fileName: "SYSSHR.ZOOPS.TEST(TEST)",
+              fileContent: "0",
+            })
+            .then((response) => {
+              console.log("wrted to test");
+              console.log(response);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    axiosConnect
+      .get("/getFileData2", {
+        params: {
+          fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
+        },
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+        },
+      })
+      .then((response) => {
+        console.log(response);
+        console.log("Data received from getFileSpaceData: " + response.data);
+        const jsonObject1 = response.data.replace(/\s/g, "");
+        const jsonObject = JSON.parse(jsonObject1);
+        console.log(jsonObject);
+        setJsonData(jsonObject);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (jsonData) {
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getNodesAndEdges(
+        jsonData,
+        "TB"
+      );
+      setNodes([...layoutedNodes]);
+      setEdges([...layoutedEdges]);
+    }
+  }, [jsonData]);
+
+  const onConnect = useCallback(
+    (params) =>
+      setEdges((eds) =>
+        addEdge(
+          { ...params, type: ConnectionLineType.SmoothStep, animated: true },
+          eds
+        )
+      ),
+    []
+  );
+
+  const onLayout = useCallback(
+    (direction) => {
+      if (jsonData) {
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getNodesAndEdges(
+          jsonData,
+          direction
+        );
+        setNodes([...layoutedNodes]);
+        setEdges([...layoutedEdges]);
+      }
+    },
+    [jsonData]
+  );
+
+  return (
+    <div style={{ height: 500 }}>
+      <ReactFlow
+        style={{ height: 500, width: 500 }}
+        connectionLineType={ConnectionLineType.SmoothStep}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={{ statusNode: StatusNode }} // Register the statusNode
+        fitView
+      >
+        <Controls />
+        <Panel position="top-right">
+          <button className="editbutton" onClick={() => onLayout("TB")}>
+            vertical layout
+          </button>
+          <button className="editbutton" onClick={() => onLayout("LR")}>
+            horizontal layout
+          </button>
+        </Panel>
+      </ReactFlow>
+    </div>
+  );
+};
+
+export default DagreFlowChart;
