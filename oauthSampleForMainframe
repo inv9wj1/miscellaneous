@@ -1,16 +1,20 @@
 const express = require('express');
+const { Session, ZosFiles } = require('@zowe/zos-files-for-zowe-sdk');
 const axios = require('axios');
+const oauthClient = require('axios-oauth-client');
 const fs = require('fs');
 const path = require('path');
-const oauthClient = require('axios-oauth-client');
 
 const app = express();
 const port = 3000;
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
 // OAuth configuration
-const oauthUrl = 'https://your-oauth-provider-url/token';
-const clientId = 'your-client-id';
-const clientSecret = 'your-client-secret';
+const oauthUrl = 'https://your-oauth-provider-url/token';  // Replace with your OAuth provider's token URL
+const clientId = 'your-client-id';  // Replace with your OAuth client ID
+const clientSecret = 'your-client-secret';  // Replace with your OAuth client secret
 
 const getClientCredentialsToken = oauthClient.client(axios.create(), {
   url: oauthUrl,
@@ -20,45 +24,38 @@ const getClientCredentialsToken = oauthClient.client(axios.create(), {
 });
 
 app.get('/download-dataset', async (req, res) => {
-  const zosmfBaseUrl = 'https://your-zosmf-url';
-  const datasetName = 'YOUR.DATASET.NAME';
+  const zosmfBaseUrl = 'your-zosmf-url';  // Replace with your z/OSMF base URL
+  const datasetName = 'YOUR.DATASET.NAME';  // Replace with the actual dataset name
 
   try {
     // Get OAuth token
     const tokenResponse = await getClientCredentialsToken();
     const token = tokenResponse.access_token;
 
-    // Construct the URL for the z/OSMF dataset download
-    const url = `${zosmfBaseUrl}/zosmf/restfiles/ds/${encodeURIComponent(datasetName)}`;
+    const zosSession = new Session({
+      hostname: zosmfBaseUrl,
+      port: 443,
+      token: token,  // Use the OAuth token for authentication
+      rejectUnauthorized: false  // Set to true if you have proper SSL setup
+    });
 
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      responseType: 'stream'
+    // Retrieve dataset content
+    const datasetContent = await ZosFiles.download({
+      session: zosSession,
+      file: datasetName,
     });
 
     const filePath = path.join(__dirname, `${datasetName}.txt`);
-    const writer = fs.createWriteStream(filePath);
+    fs.writeFileSync(filePath, datasetContent);
 
-    response.data.pipe(writer);
-
-    writer.on('finish', () => {
-      res.download(filePath, (err) => {
-        if (err) {
-          console.error('Error downloading the file:', err);
-          res.status(500).send('Error downloading the file');
-        } else {
-          console.log('File downloaded successfully');
-        }
-      });
+    res.download(filePath, (err) => {
+      if (err) {
+        console.error('Error downloading the file:', err);
+        res.status(500).send('Error downloading the file');
+      } else {
+        console.log('File downloaded successfully');
+      }
     });
-
-    writer.on('error', (err) => {
-      console.error('Error writing the file:', err);
-      res.status(500).send('Error writing the file');
-    });
-
   } catch (error) {
     console.error('Error fetching the dataset:', error);
     res.status(500).send('Error fetching the dataset');
