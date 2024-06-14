@@ -1,0 +1,70 @@
+const express = require('express');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+const oauthClient = require('axios-oauth-client');
+
+const app = express();
+const port = 3000;
+
+// OAuth configuration
+const oauthUrl = 'https://your-oauth-provider-url/token';
+const clientId = 'your-client-id';
+const clientSecret = 'your-client-secret';
+
+const getClientCredentialsToken = oauthClient.client(axios.create(), {
+  url: oauthUrl,
+  grant_type: 'client_credentials',
+  client_id: clientId,
+  client_secret: clientSecret
+});
+
+app.get('/download-dataset', async (req, res) => {
+  const zosmfBaseUrl = 'https://your-zosmf-url';
+  const datasetName = 'YOUR.DATASET.NAME';
+
+  try {
+    // Get OAuth token
+    const tokenResponse = await getClientCredentialsToken();
+    const token = tokenResponse.access_token;
+
+    // Construct the URL for the z/OSMF dataset download
+    const url = `${zosmfBaseUrl}/zosmf/restfiles/ds/${encodeURIComponent(datasetName)}`;
+
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      responseType: 'stream'
+    });
+
+    const filePath = path.join(__dirname, `${datasetName}.txt`);
+    const writer = fs.createWriteStream(filePath);
+
+    response.data.pipe(writer);
+
+    writer.on('finish', () => {
+      res.download(filePath, (err) => {
+        if (err) {
+          console.error('Error downloading the file:', err);
+          res.status(500).send('Error downloading the file');
+        } else {
+          console.log('File downloaded successfully');
+        }
+      });
+    });
+
+    writer.on('error', (err) => {
+      console.error('Error writing the file:', err);
+      res.status(500).send('Error writing the file');
+    });
+
+  } catch (error) {
+    console.error('Error fetching the dataset:', error);
+    res.status(500).send('Error fetching the dataset');
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
