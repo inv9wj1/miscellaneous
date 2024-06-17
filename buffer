@@ -1,31 +1,66 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+const { Session, ZosFiles } = require('@zowe/zos-files-for-zowe-sdk');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const port = 3000;
 
-let responseData = null;
+// Middleware to parse JSON bodies
+app.use(express.json());
 
-// Middleware to parse JSON body
-app.use(bodyParser.json());
+// Load client certificate and private key
+const clientCert = fs.readFileSync(path.resolve(__dirname, 'certs/client-cert.pem'));
+const clientKey = fs.readFileSync(path.resolve(__dirname, 'certs/client-key.pem'));
+const caCert = fs.readFileSync(path.resolve(__dirname, 'certs/ca-cert.pem'));
 
-// POST endpoint to receive data and save it
-app.post('/saveResponse', (req, res) => {
-    // Assuming the incoming data is in JSON format
-    responseData = req.body;
-    res.status(200).send('Response saved successfully');
+// Create an HTTPS agent with the client certificate
+const httpsAgent = new https.Agent({
+  cert: clientCert,
+  key: clientKey,
+  ca: caCert,
+  rejectUnauthorized: true  // Set to false if using self-signed certificates, though not recommended
 });
 
-// GET endpoint to serve the saved response data
-app.get('/getResponse', (req, res) => {
-    if (responseData) {
-        res.status(200).json(responseData);
-    } else {
-        res.status(404).send('No response data available');
-    }
+app.get('/download-dataset', async (req, res) => {
+  const zosmfBaseUrl = 'https://your-zosmf-url';  // Replace with your z/OSMF base URL
+  const datasetName = 'YOUR.DATASET.NAME';  // Replace with the actual dataset name
+
+  const zosSession = new Session({
+    hostname: 'your-zosmf-url',  // Replace with your z/OSMF host
+    port: 443,
+    rejectUnauthorized: true,  // Ensure this is set correctly for your environment
+    ca: caCert,
+    cert: clientCert,
+    key: clientKey,
+    httpsAgent: httpsAgent
+  });
+
+  try {
+    // Retrieve dataset content
+    const datasetContent = await ZosFiles.download({
+      session: zosSession,
+      file: datasetName,
+    });
+
+    const filePath = path.join(__dirname, `${datasetName}.txt`);
+    fs.writeFileSync(filePath, datasetContent);
+
+    res.download(filePath, (err) => {
+      if (err) {
+        console.error('Error downloading the file:', err);
+        res.status(500).send('Error downloading the file');
+      } else {
+        console.log('File downloaded successfully');
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching the dataset:', error);
+    res.status(500).send('Error fetching the dataset');
+  }
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });
