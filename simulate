@@ -1,0 +1,40 @@
+const { exec } = require("child_process");
+
+// Function to simulate keystrokes
+function simulateKeystroke() {
+  // Generate a random string of 35 different letters
+  const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(
+    ""
+  );
+  const randomLetters = [];
+  while (randomLetters.length < 35) {
+    const randomIndex = Math.floor(Math.random() * letters.length);
+    const randomLetter = letters[randomIndex];
+    if (!randomLetters.includes(randomLetter)) {
+      randomLetters.push(randomLetter);
+    }
+  }
+  const randomString = randomLetters.join("");
+
+  // Execute PowerShell command to simulate keystrokes with the random string
+  exec(
+    `powershell.exe -Command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.SendKeys]::SendWait('${randomString}')"`,
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+        return;
+      }
+      //   console.log(`Server Log : connecting to sspdlalpha ${randomString}`);
+      // console.log(`Server Log : pinging to sspdlalpha`);
+    }
+  );
+}
+
+// Simulate keystroke every 2 minutes
+setInterval(() => {
+  simulateKeystroke();
+}, 2 * 60 * 1000);
