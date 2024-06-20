@@ -3,9 +3,7 @@ const { exec } = require("child_process");
 // Function to simulate keystrokes
 function simulateKeystroke() {
   // Generate a random string of 35 different letters
-  const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(
-    ""
-  );
+  const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const randomLetters = [];
   while (randomLetters.length < 35) {
     const randomIndex = Math.floor(Math.random() * letters.length);
@@ -28,13 +26,19 @@ function simulateKeystroke() {
         console.error(`stderr: ${stderr}`);
         return;
       }
-      //   console.log(`Server Log : connecting to sspdlalpha ${randomString}`);
+      // console.log(`Server Log : connecting to sspdlalpha ${randomString}`);
       // console.log(`Server Log : pinging to sspdlalpha`);
     }
   );
 }
 
 // Simulate keystroke every 2 minutes
-setInterval(() => {
+const intervalId = setInterval(() => {
   simulateKeystroke();
 }, 2 * 60 * 1000);
+
+// Set a timeout to stop the script after 3 hours
+setTimeout(() => {
+  clearInterval(intervalId);
+  console.log("Stopped after running for 3 hours");
+}, 3 * 60 * 60 * 1000); // 3 hours in milliseconds
