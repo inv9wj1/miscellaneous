@@ -1,64 +1,83 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. MPDENCR1.
+const express = require('express');
+const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const { ZosmfSession, ZosFiles } = require('@zowe/zos-files-for-zowe-sdk');
 
-       DATA DIVISION.
-       WORKING-STORAGE SECTION.
+const app = express();
+const port = 3000;
 
-       01  WS-DATA.
-           05  DATA-LENGTH       PIC 9(08) COMP VALUE 07.
-           05  DATA-VALUE        PIC X(07) VALUE 'FDMWCZ7'.
+// Zowe session configuration
+const zosmfHost = 'your.zosmf.host'; // replace with your z/OSMF host
+const zosmfPort = 443; // replace with your z/OSMF port
+const user = 'your_username'; // replace with your z/OSMF username
+const password = 'your_password'; // replace with your z/OSMF password
 
-       01  WS-KEY.
-           05  KEY-LENGTH        PIC 9(08) COMP VALUE 8.
-           05  KEY-VALUE         PIC X(08) VALUE '12345678'.
+let jwtToken = null;
+let tokenExpirationTime = null;
 
-       01  WS-ENCRYPTED-DATA.
-           05  ENCD-DATA-LENGTH  PIC 9(08) COMP VALUE 07.
-           05  ENCD-DATA-VALUE   PIC X(07).
-      *    05  ENCD-DATA-VALUE   PIC X(16).
+async function getJwtToken() {
+    const auth = Buffer.from(`${user}:${password}`).toString('base64');
 
-       01  WS-RETURN-CODE        PIC S9(04) COMP.
-       01  WS-REASON-CODE        PIC S9(08) COMP.
-       01  WS-RULES              PIC X(8) VALUE 'ECBPCS  '.
+    try {
+        const response = await axios.post(`https://${zosmfHost}:${zosmfPort}/zosmf/services/authenticate`, null, {
+            headers: {
+                'Authorization': `Basic ${auth}`
+            }
+        });
 
-       01  WS-ERR-TEXT           PIC X(60).
+        jwtToken = response.data.token; // Adjust based on the actual response structure
 
-       LINKAGE SECTION.
-       01  WORK-AREA.
-           05  WA-RC             PIC S9(04) COMP.
-           05  WA-RSN            PIC S9(08) COMP.
-           05  WA-RS             PIC X(8).
+        const decodedToken = jwt.decode(jwtToken);
+        if (decodedToken && decodedToken.exp) {
+            tokenExpirationTime = decodedToken.exp * 1000; // Convert to milliseconds
+        } else {
+            throw new Error('Invalid JWT token structure');
+        }
 
-       PROCEDURE DIVISION.
+        return jwtToken;
+    } catch (error) {
+        console.error('Error obtaining JWT token:', error);
+        throw error;
+    }
+}
 
-       MAIN-PROCESS SECTION.
-           DISPLAY 'Starting the Encryption Process'.
+async function createSession() {
+    const currentTime = Date.now();
 
-           CALL 'CSNBENC' USING
-                 BY REFERENCE   DATA-LENGTH
-                 BY REFERENCE   DATA-VALUE
-                 BY REFERENCE   KEY-LENGTH
-                 BY REFERENCE   KEY-VALUE
-                 BY REFERENCE   ENCD-DATA-LENGTH
-                 BY REFERENCE   ENCD-DATA-VALUE
-                 BY REFERENCE   WS-RETURN-CODE
-                 BY REFERENCE   WS-REASON-CODE.
+    if (!jwtToken || currentTime >= tokenExpirationTime) {
+        console.log('JWT token expired or not found, obtaining a new token.');
+        await getJwtToken();
+    }
 
-           IF WS-RETURN-CODE NOT = 0
-              DISPLAY 'Encryption Failed.'
-              MOVE 'ERROR: RETURN CODE IS: ' TO WS-ERR-TEXT ( 1:23 )
-              MOVE WS-RETURN-CODE TO WS-ERR-TEXT (24:4 )
-              DISPLAY WS-ERR-TEXT
-              MOVE 'REASON CODE IS: ' TO WS-ERR-TEXT (1:07)
-              MOVE WS-REASON-CODE TO WS-ERR-TEXT (08:8)
-              DISPLAY WS-ERR-TEXT
-              STOP RUN
-           ELSE
-              DISPLAY 'DATA TO ENCRYPT ' DATA-VALUE
-              DISPLAY 'Encryption Successful.'
-              DISPLAY 'Encrypted Data: ' ENCD-DATA-VALUE
-           END-IF.
+    return ZosmfSession.createBasicZosmfSession({
+        hostname: zosmfHost,
+        port: zosmfPort,
+        tokenType: 'Bearer',
+        tokenValue: jwtToken,
+        rejectUnauthorized: false // set to true if using a valid SSL certificate
+    });
+}
 
-           DISPLAY 'End of Encryption Process'.
-           STOP RUN.
-       END-MAIN-PROCESS.
+app.get('/download-dataset', async (req, res) => {
+    const datasetName = req.query.dataset; // get dataset name from query parameters
+
+    if (!datasetName) {
+        return res.status(400).send('Dataset name is required');
+    }
+
+    try {
+        const session = await createSession();
+        const zosFiles = new ZosFiles(session);
+        const response = await zosFiles.download.dataSet(datasetName);
+        res.setHeader('Content-Disposition', `attachment; filename="${datasetName}.txt"`);
+        res.setHeader('Content-Type', 'text/plain');
+        res.send(response.toString());
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error downloading dataset');
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
