@@ -81,3 +81,21 @@ app.get('/download-dataset', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+
+=============================================
+
+
+const profInfo = new ProfileInfo("zowe");
+await profInfo.readProfilesFromDisk();
+const zosmfProfAttrs = profInfo.getDefaultProfile("zosmf");
+const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfAttrs, { getSecureVals: true });
+const session = imperative.ProfileInfo.createSession(zosmfMergedArgs.knownArgs);
+
+// Specify JWT token type and value on the session object.
+session.ISession.tokenType = "jwtToken";
+session.ISession.tokenValue = "<your JWT here>";
+
+const dataset = "ZOWEUSER.PUBLIC.YOUR.DATASET.HERE";
+const options: IDownloadOptions = { failFast: false };
+const response = await Download.allMembers(session, dataset, options);
