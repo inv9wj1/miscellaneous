@@ -1,5 +1,7 @@
 const express = require('express');
 const axios = require('axios');
+const https = require('https');
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const { ProfileInfo, imperative } = require('@zowe/imperative');
 const { Download } = require('@zowe/zos-files-for-zowe-sdk');
@@ -13,6 +15,12 @@ const zosmfPort = 443; // replace with your z/OSMF port
 const user = 'your_username'; // replace with your z/OSMF username
 const password = 'your_password'; // replace with your z/OSMF password
 
+const cert = fs.readFileSync('./zosmf.crt');
+
+const httpsAgent = new https.Agent({
+    ca: cert
+});
+
 let jwtToken = null;
 let tokenExpirationTime = null;
 
@@ -23,7 +31,8 @@ async function getJwtToken() {
         const response = await axios.post(`https://${zosmfHost}:${zosmfPort}/zosmf/services/authenticate`, null, {
             headers: {
                 'Authorization': `Basic ${auth}`
-            }
+            },
+            httpsAgent
         });
 
         jwtToken = response.data.token; // Adjust based on the actual response structure
