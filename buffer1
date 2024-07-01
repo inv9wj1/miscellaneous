@@ -1,11 +1,37 @@
-TypeError: Cannot read properties of undefined (reading 'trim')
-    at ZosmfRestClient.buildOptions (C:\Users\F8512PV\Desktop\gitlab\zoops_server\node_modules\@zowe\imperative\lib\rest\src\client\AbstractRestClient.js:268:82)
-    at C:\Users\F8512PV\Desktop\gitlab\zoops_server\node_modules\@zowe\imperative\lib\rest\src\client\AbstractRestClient.js:117:39
-    at new Promise (<anonymous>)
-    at ZosmfRestClient.request (C:\Users\F8512PV\Desktop\gitlab\zoops_server\node_modules\@zowe\imperative\lib\rest\src\client\AbstractRestClient.js:95:16)
-    at ZosmfRestClient.getExpectString (C:\Users\F8512PV\Desktop\gitlab\zoops_server\node_modules\@zowe\imperative\lib\rest\src\client\RestClient.js:196:34)
-    at ZosmfRestClient.<anonymous> (C:\Users\F8512PV\Desktop\gitlab\zoops_server\node_modules\@zowe\imperative\lib\rest\src\client\RestClient.js:50:37)
-    at Generator.next (<anonymous>)
-    at C:\Users\F8512PV\Desktop\gitlab\zoops_server\node_modules\@zowe\imperative\lib\rest\src\client\RestClient.js:18:71
-    at new Promise (<anonymous>)
-    at __awaiter (C:\Users\F8512PV\Desktop\gitlab\zoops_server\node_modules\@zowe\imperative\lib\rest\src\client\RestClient.js:14:12)
+const fs = require('fs');
+const path = require('path');
+
+// Load configuration file
+const configPath = path.resolve(__dirname, 'config.json'); // Adjust path as needed
+const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+// Access z/OSMF profile settings
+const zosmfProfile = config.profiles.zosmf;
+
+// Example usage in Zowe SDK or similar
+const { ProfileInfo, imperative } = require('@zowe/imperative');
+
+async function createSessionFromProfile() {
+  const profInfo = new ProfileInfo("zowe");
+  const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfile, { getSecureVals: true });
+  const session = imperative.ProfileInfo.createSession(zosmfMergedArgs.knownArgs);
+
+  // Optionally set token type and value if needed
+  // session.ISession.tokenType = "jwtToken";
+  // session.ISession.tokenValue = "<your JWT here>";
+
+  return session;
+}
+
+// Example usage
+async function main() {
+  try {
+    const session = await createSessionFromProfile();
+    console.log('Session created:', session);
+    // Perform z/OSMF operations using the session
+  } catch (error) {
+    console.error('Error creating session:', error);
+  }
+}
+
+main();
