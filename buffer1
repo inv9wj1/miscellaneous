@@ -1,11 +1,115 @@
-Error obtaining JWT token: Error: Invalid JWT token structure
-    at getJwtToken (C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:367:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async createSession (C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:381:5)
-    at async C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:409:21
-Error: Invalid JWT token structure
-    at getJwtToken (C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:367:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async createSession (C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:381:5)
-    at async C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:409:21
-GET /mf/downloadds?dataset=sysshr.zoops.verbose 500 1490.304 ms - 25
+const express = require('express');
+const axios = require('axios');
+const https = require('https');
+const fs = require('fs');
+const { ProfileInfo, imperative } = require('@zowe/imperative');
+const { Download } = require('@zowe/zos-files-for-zowe-sdk');
+
+const app = express();
+const port = 3000;
+
+// Zowe session configuration
+const zosmfHost = 'your.zosmf.host'; // replace with your z/OSMF host
+const zosmfPort = 443; // replace with your z/OSMF port
+const user = 'your_username'; // replace with your z/OSMF username
+const password = 'your_password'; // replace with your z/OSMF password
+
+const cert = fs.readFileSync('./zosmf.crt');
+
+const httpsAgent = new https.Agent({
+    ca: cert
+});
+
+let ltpaToken = null;
+let tokenExpirationTime = null;
+
+async function getLtpaToken() {
+    const auth = Buffer.from(`${user}:${password}`).toString('base64');
+
+    try {
+        const response = await axios.post(`https://${zosmfHost}:${zosmfPort}/zosmf/services/authenticate`, null, {
+            headers: {
+                'Authorization': `Basic ${auth}`,
+                'X-CSRF-ZOSMF-HEADER': 'HeaderValue' // Add your actual header value here
+            },
+            httpsAgent,
+            withCredentials: true // Ensure that axios includes cookies in the request
+        });
+
+        // Log the response headers to see the cookies
+        console.log('Response headers:', response.headers);
+
+        const setCookieHeader = response.headers['set-cookie'];
+
+        if (!setCookieHeader) {
+            throw new Error('Set-Cookie header not found in response');
+        }
+
+        // Find the LTPA token in the cookies
+        const ltpaCookie = setCookieHeader.find(cookie => cookie.startsWith('LtpaToken='));
+
+        if (!ltpaCookie) {
+            throw new Error('LTPA token not found in cookies');
+        }
+
+        // Extract the token value from the cookie
+        ltpaToken = ltpaCookie.split(';')[0].split('=')[1];
+
+        // Optionally, you can parse and handle the expiration time if available
+        // Example: assuming the cookie contains an expiration time
+        // const expirationMatch = ltpaCookie.match(/Expires=(.*?);/);
+        // if (expirationMatch) {
+        //     tokenExpirationTime = new Date(expirationMatch[1]).getTime();
+        // }
+
+        return ltpaToken;
+    } catch (error) {
+        console.error('Error obtaining LTPA token:', error);
+        throw error;
+    }
+}
+
+async function createSession() {
+    const currentTime = Date.now();
+
+    if (!ltpaToken || (tokenExpirationTime && currentTime >= tokenExpirationTime)) {
+        console.log('LTPA token expired or not found, obtaining a new token.');
+        await getLtpaToken();
+    }
+
+    const profInfo = new ProfileInfo("zowe");
+    await profInfo.readProfilesFromDisk();
+    const zosmfProfAttrs = profInfo.getDefaultProfile("zosmf");
+    const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfAttrs, { getSecureVals: true });
+    const session = imperative.ProfileInfo.createSession(zosmfMergedArgs.knownArgs);
+
+    // Specify LTPA token type and value on the session object.
+    session.ISession.tokenType = "ltpaToken";
+    session.ISession.tokenValue = ltpaToken;
+
+    return session;
+}
+
+app.get('/download-dataset', async (req, res) => {
+    const datasetName = req.query.dataset; // get dataset name from query parameters
+
+    if (!datasetName) {
+        return res.status(400).send('Dataset name is required');
+    }
+
+    try {
+        const session = await createSession();
+        const options = { failFast: false };
+        const response = await Download.allMembers(session, datasetName, options);
+        res.setHeader('Content-Disposition', `attachment; filename="${datasetName}.txt"`);
+        res.setHeader('Content-Type', 'text/plain');
+        res.send(response.toString());
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error downloading dataset');
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
