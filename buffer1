@@ -1,5 +1,118 @@
-token from real time :
-ZrYl20d1Uzt3NxcjLKp0JCOhxBEcX0Xs9Xg3p6fQV9p0BmMad7P/+DyryAvFwA7FOH2cLojMm1VxDYGhwqXhZcyeQM6f95tXfgluEfaq2agO3nI7H0m4867ERU0Fr9VjIY2S838sKIqgORKuw4YVZZcOYEAL4KTrxwGWXaSW25eFyoku0IcFqc2/H5qlLnjYXvqqTlSDbi9GvMZg9aZ5RQmuBdUc861He8nk24VDnsZsPR2cf4mKzsH3V+HHjlH6u8Ga+VZzi9TPRR7EWc4B0nVz7hwHrEUbK2QYPyzkGM/C1QOKEnZGVjHjFmEc6G9v
+// Zowe session configuration request using JWT
+const zosmfHost = "tplavipa.1dc.com"; // replace with your z/OSMF host
+const zosmfPort = 443; // replace with your z/OSMF port
+const userr = "FDTO075"; // replace with your z/OSMF username
+const passwordd = "INDIA@12"; // replace with your z/OSMF password
 
-token  from above code:
-dTT/8H+w1WlZcwcw+Ibp6Txq1lfDBIdhdZgfh2MEbxAtOoOc/7SiOqhOL7bJrIDT77cP8/Rb6ay1VTTjGERfrhCdy5foynP1pXIo/67EtAcW1qx9uXE7Ne6zcmKWWO1vCbHL3R+zsjo91lgj1gjef/T0fLxheEumfkLnAOWwIHn5S5oq+DT8AnOvo0r3cX8ZG8kdtJs4l820YVPSIw4Dj6+M9TtRdm/mxGTsj8NW6M4apdylLE+mQYN3/uU4DjXW5/9JwJiiSsC0zxb9y1JLPqP8xHMrYKpdA/ZbIjZrYNRDJY+tvPY+eBRNK1m4piTe
+const filePath = path.resolve(`routes/ZOSMF.crt`);
+const cert = fs.readFileSync(filePath);
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
+
+let ltpaToken = null;
+let tokenExpirationTime = null;
+
+async function getLtpaToken() {
+  const auth = Buffer.from(`${userr}:${passwordd}`).toString("base64");
+
+  try {
+    const response = await axios.post(
+      `https://${zosmfHost}:${zosmfPort}/zosmf/services/authenticate`,
+      null,
+      {
+        headers: {
+          Authorization: `Basic ${auth}`,
+          "X-CSRF-ZOSMF-HEADER": "dummy", // Add your actual header value here
+        },
+        httpsAgent,
+        withCredentials: true, // Ensure that axios includes cookies in the request
+      }
+    );
+
+    // Log the response headers to see the cookies
+    console.log("Response headers:", response.headers);
+
+    const setCookieHeader = response.headers["set-cookie"];
+
+    if (!setCookieHeader) {
+      throw new Error("Set-Cookie header not found in response");
+    }
+
+    // Find the LTPA token in the cookies
+    const ltpaCookie = setCookieHeader.find((cookie) =>
+      cookie.startsWith("LtpaToken2=")
+    );
+    console.log("ltpaToken2 is", ltpaCookie);
+    if (!ltpaCookie) {
+      throw new Error("LTPA token not found in cookies");
+    }
+
+    // Extract the token value from the cookie
+    ltpaToken = ltpaCookie.split(";")[0].split("=")[1];
+    console.log("ltpaToken is", ltpaToken);
+    // Optionally, you can parse and handle the expiration time if available
+    // Example: assuming the cookie contains an expiration time
+    // const expirationMatch = ltpaCookie.match(/Expires=(.*?);/);
+    // if (expirationMatch) {
+    //     tokenExpirationTime = new Date(expirationMatch[1]).getTime();
+    // }
+
+    return ltpaToken;
+  } catch (error) {
+    console.error("Error obtaining LTPA token:", error);
+    throw error;
+  }
+}
+
+async function createSession() {
+  const currentTime = Date.now();
+
+  if (
+    !ltpaToken ||
+    (tokenExpirationTime && currentTime >= tokenExpirationTime)
+  ) {
+    console.log("LTPA token expired or not found, obtaining a new token.");
+    await getLtpaToken();
+  }
+
+  const profInfo = new ProfileInfo("zowe");
+  await profInfo.readProfilesFromDisk();
+  const zosmfProfAttrs = profInfo.getDefaultProfile("zosmf");
+  const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfAttrs, {
+    getSecureVals: true,
+  });
+  const session = imperative.ProfileInfo.createSession(
+    zosmfMergedArgs.knownArgs
+  );
+
+  // Specify LTPA token type and value on the session object.
+  session.ISession.tokenType = "ltpaToken";
+  session.ISession.tokenValue = ltpaToken;
+
+  return session;
+}
+
+router.get("/download-dataset", async (req, res) => {
+  const datasetName = req.query.dataset; // get dataset name from query parameters
+
+  if (!datasetName) {
+    return res.status(400).send("Dataset name is required");
+  }
+
+  try {
+    const session = await createSession();
+    const options = { failFast: false };
+    const response = await Download.allMembers(session, datasetName, options);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${datasetName}.txt"`
+    );
+    res.setHeader("Content-Type", "text/plain");
+    res.send(response.toString());
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error downloading dataset");
+  }
+});
