@@ -1,8 +1,18 @@
+const express = require('express');
+const axios = require('axios');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const { Download } = require('@zowe/zos-files-for-zowe-sdk');
+
+const router = express.Router();
+const port = 3000;
+
 // Zowe session configuration request using JWT
-const zosmfHost = "tplavipa.1dc.com"; // replace with your z/OSMF host
+const zosmfHost = "aaaaaaa.1dc.com"; // replace with your z/OSMF host
 const zosmfPort = 443; // replace with your z/OSMF port
-const userr = "FDTO075"; // replace with your z/OSMF username
-const passwordd = "INDIA@12"; // replace with your z/OSMF password
+const userr = "aaaaaa"; // replace with your z/OSMF username
+const passwordd = "bbbbbb@12"; // replace with your z/OSMF password
 
 const filePath = path.resolve(`routes/ZOSMF.crt`);
 const cert = fs.readFileSync(filePath);
@@ -31,33 +41,21 @@ async function getLtpaToken() {
       }
     );
 
-    // Log the response headers to see the cookies
-    console.log("Response headers:", response.headers);
-
     const setCookieHeader = response.headers["set-cookie"];
 
     if (!setCookieHeader) {
       throw new Error("Set-Cookie header not found in response");
     }
 
-    // Find the LTPA token in the cookies
     const ltpaCookie = setCookieHeader.find((cookie) =>
       cookie.startsWith("LtpaToken2=")
     );
-    console.log("ltpaToken2 is", ltpaCookie);
+
     if (!ltpaCookie) {
       throw new Error("LTPA token not found in cookies");
     }
 
-    // Extract the token value from the cookie
     ltpaToken = ltpaCookie.split(";")[0].split("=")[1];
-    console.log("ltpaToken is", ltpaToken);
-    // Optionally, you can parse and handle the expiration time if available
-    // Example: assuming the cookie contains an expiration time
-    // const expirationMatch = ltpaCookie.match(/Expires=(.*?);/);
-    // if (expirationMatch) {
-    //     tokenExpirationTime = new Date(expirationMatch[1]).getTime();
-    // }
 
     return ltpaToken;
   } catch (error) {
@@ -77,19 +75,17 @@ async function createSession() {
     await getLtpaToken();
   }
 
-  const profInfo = new ProfileInfo("zowe");
-  await profInfo.readProfilesFromDisk();
-  const zosmfProfAttrs = profInfo.getDefaultProfile("zosmf");
-  const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfAttrs, {
-    getSecureVals: true,
-  });
-  const session = imperative.ProfileInfo.createSession(
-    zosmfMergedArgs.knownArgs
-  );
-
-  // Specify LTPA token type and value on the session object.
-  session.ISession.tokenType = "ltpaToken";
-  session.ISession.tokenValue = ltpaToken;
+  const session = {
+    ISession: {
+      type: 'z/OSMF',
+      host: zosmfHost,
+      port: zosmfPort,
+      protocol: 'https',
+      rejectUnauthorized: false,
+      tokenType: "ltpaToken",
+      tokenValue: ltpaToken
+    }
+  };
 
   return session;
 }
@@ -115,4 +111,11 @@ router.get("/download-dataset", async (req, res) => {
     console.error(error);
     res.status(500).send("Error downloading dataset");
   }
+});
+
+const app = express();
+app.use('/', router);
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
