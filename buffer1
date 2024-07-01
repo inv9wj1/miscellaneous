@@ -1,37 +1,27 @@
-const fs = require('fs');
-const path = require('path');
+async function createSession() {
+const currentTime = Date.now();
 
-// Load configuration file
-const configPath = path.resolve(__dirname, 'config.json'); // Adjust path as needed
-const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-
-// Access z/OSMF profile settings
-const zosmfProfile = config.profiles.zosmf;
-
-// Example usage in Zowe SDK or similar
-const { ProfileInfo, imperative } = require('@zowe/imperative');
-
-async function createSessionFromProfile() {
-  const profInfo = new ProfileInfo("zowe");
-  const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfile, { getSecureVals: true });
-  const session = imperative.ProfileInfo.createSession(zosmfMergedArgs.knownArgs);
-
-  // Optionally set token type and value if needed
-  // session.ISession.tokenType = "jwtToken";
-  // session.ISession.tokenValue = "<your JWT here>";
-
-  return session;
+if (
+!ltpaToken ||
+(tokenExpirationTime && currentTime >= tokenExpirationTime)
+) {
+console.log("LTPA token expired or not found, obtaining a new token.");
+await getLtpaToken();
 }
 
-// Example usage
-async function main() {
-  try {
-    const session = await createSessionFromProfile();
-    console.log('Session created:', session);
-    // Perform z/OSMF operations using the session
-  } catch (error) {
-    console.error('Error creating session:', error);
-  }
-}
+const profInfo = new ProfileInfo("zowe");
+await profInfo.readProfilesFromDisk();
+const zosmfProfAttrs = profInfo.getDefaultProfile("zosmf");
+const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfAttrs, {
+getSecureVals: true,
+});
+const session = imperative.ProfileInfo.createSession(
+zosmfMergedArgs.knownArgs
+);
 
-main();
+// Specify LTPA token type and value on the session object.
+session.ISession.tokenType = "ltpaToken";
+session.ISession.tokenValue = ltpaToken;
+
+return session;
+}
