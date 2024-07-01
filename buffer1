@@ -1,97 +1,11 @@
-const express = require('express');
-const axios = require('axios');
-const https = require('https');
-const fs = require('fs');
-const jwt = require('jsonwebtoken');
-const { ProfileInfo, imperative } = require('@zowe/imperative');
-const { Download } = require('@zowe/zos-files-for-zowe-sdk');
-
-const app = express();
-const port = 3000;
-
-// Zowe session configuration
-const zosmfHost = 'your.zosmf.host'; // replace with your z/OSMF host
-const zosmfPort = 443; // replace with your z/OSMF port
-const user = 'your_username'; // replace with your z/OSMF username
-const password = 'your_password'; // replace with your z/OSMF password
-
-const cert = fs.readFileSync('./zosmf.crt');
-
-const httpsAgent = new https.Agent({
-    ca: cert
-});
-
-let jwtToken = null;
-let tokenExpirationTime = null;
-
-async function getJwtToken() {
-    const auth = Buffer.from(`${user}:${password}`).toString('base64');
-
-    try {
-        const response = await axios.post(`https://${zosmfHost}:${zosmfPort}/zosmf/services/authenticate`, null, {
-            headers: {
-                'Authorization': `Basic ${auth}`
-            },
-            httpsAgent
-        });
-
-        jwtToken = response.data.token; // Adjust based on the actual response structure
-
-        const decodedToken = jwt.decode(jwtToken);
-        if (decodedToken && decodedToken.exp) {
-            tokenExpirationTime = decodedToken.exp * 1000; // Convert to milliseconds
-        } else {
-            throw new Error('Invalid JWT token structure');
-        }
-
-        return jwtToken;
-    } catch (error) {
-        console.error('Error obtaining JWT token:', error);
-        throw error;
-    }
-}
-
-async function createSession() {
-    const currentTime = Date.now();
-
-    if (!jwtToken || currentTime >= tokenExpirationTime) {
-        console.log('JWT token expired or not found, obtaining a new token.');
-        await getJwtToken();
-    }
-
-    const profInfo = new ProfileInfo("zowe");
-    await profInfo.readProfilesFromDisk();
-    const zosmfProfAttrs = profInfo.getDefaultProfile("zosmf");
-    const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfAttrs, { getSecureVals: true });
-    const session = imperative.ProfileInfo.createSession(zosmfMergedArgs.knownArgs);
-
-    // Specify JWT token type and value on the session object.
-    session.ISession.tokenType = "jwtToken";
-    session.ISession.tokenValue = jwtToken;
-
-    return session;
-}
-
-app.get('/download-dataset', async (req, res) => {
-    const datasetName = req.query.dataset; // get dataset name from query parameters
-
-    if (!datasetName) {
-        return res.status(400).send('Dataset name is required');
-    }
-
-    try {
-        const session = await createSession();
-        const options = { failFast: false };
-        const response = await Download.allMembers(session, datasetName, options);
-        res.setHeader('Content-Disposition', `attachment; filename="${datasetName}.txt"`);
-        res.setHeader('Content-Type', 'text/plain');
-        res.send(response.toString());
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error downloading dataset');
-    }
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+Error obtaining JWT token: Error: Invalid JWT token structure
+    at getJwtToken (C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:367:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async createSession (C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:381:5)
+    at async C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:409:21
+Error: Invalid JWT token structure
+    at getJwtToken (C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:367:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async createSession (C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:381:5)
+    at async C:\Users\F8512PV\Desktop\gitlab\zoops_server\routes\mainframe.js:409:21
+GET /mf/downloadds?dataset=sysshr.zoops.verbose 500 1490.304 ms - 25
