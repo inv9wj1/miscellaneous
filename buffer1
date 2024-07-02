@@ -1,20 +1,7 @@
-try {
-    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
-    const sessCfgWithCreds =
-      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
-        sessCfg,
-        profile
-      );
-    const session = new ProfileInfo.Session(sessCfgWithCreds);
-    Get.dataSet(session, req.query.fileName).then(
-      (val) => {
-        res.status(201).send(val.toString());
-        console.log("Response from RESHMIKA", val.toString());
-      },
-      (reason) => {
-        res.status(201).json({
-          message: "Invalid or No response from Mainframe :" + reason,
-        });
-        console.log("PRINTING REASON", reason);
-      }
-    );
+npm ERR! code E403
+npm ERR! 403 403 Forbidden - GET https://registry.npmjs.org/@zowe%2fsecrets-for-zowe-sdk
+npm ERR! 403 In most cases, you or one of your dependencies are requesting
+npm ERR! 403 a package version that is forbidden by your security policy, or
+npm ERR! 403 on a server you do not have access to.
+
+npm ERR! A complete log of this run can be found in: C:\Users\F8512PV\AppData\Local\npm-cache\_logs\2024-07-02T14_36_23_564Z-debug-0.log
