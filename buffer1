@@ -1,27 +1,20 @@
-async function createSession() {
-const currentTime = Date.now();
-
-if (
-!ltpaToken ||
-(tokenExpirationTime && currentTime >= tokenExpirationTime)
-) {
-console.log("LTPA token expired or not found, obtaining a new token.");
-await getLtpaToken();
-}
-
-const profInfo = new ProfileInfo("zowe");
-await profInfo.readProfilesFromDisk();
-const zosmfProfAttrs = profInfo.getDefaultProfile("zosmf");
-const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfAttrs, {
-getSecureVals: true,
-});
-const session = imperative.ProfileInfo.createSession(
-zosmfMergedArgs.knownArgs
-);
-
-// Specify LTPA token type and value on the session object.
-session.ISession.tokenType = "ltpaToken";
-session.ISession.tokenValue = ltpaToken;
-
-return session;
-}
+try {
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+    Get.dataSet(session, req.query.fileName).then(
+      (val) => {
+        res.status(201).send(val.toString());
+        console.log("Response from RESHMIKA", val.toString());
+      },
+      (reason) => {
+        res.status(201).json({
+          message: "Invalid or No response from Mainframe :" + reason,
+        });
+        console.log("PRINTING REASON", reason);
+      }
+    );
