@@ -1,7 +1,9 @@
-npm ERR! code E403
-npm ERR! 403 403 Forbidden - GET https://registry.npmjs.org/@zowe%2fsecrets-for-zowe-sdk
-npm ERR! 403 In most cases, you or one of your dependencies are requesting
-npm ERR! 403 a package version that is forbidden by your security policy, or
-npm ERR! 403 on a server you do not have access to.
-
-npm ERR! A complete log of this run can be found in: C:\Users\F8512PV\AppData\Local\npm-cache\_logs\2024-07-02T14_36_23_564Z-debug-0.log
+npm config set registry
+>> https://nexus-ci.onefiserv.net/repository/npm-group/
+https://nexus-ci.onefiserv.net/repository/npm-group/ : The term 'https://nexus-ci.onefiserv.net/repository/npm-group/' is not recognized 
+that the path is correct and try again.
+At line:2 char:1
++ https://nexus-ci.onefiserv.net/repository/npm-group/
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (https://nexus-c...tory/npm-group/:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
