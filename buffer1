@@ -1,9 +1,1 @@
-npm config set registry
->> https://nexus-ci.onefiserv.net/repository/npm-group/
-https://nexus-ci.onefiserv.net/repository/npm-group/ : The term 'https://nexus-ci.onefiserv.net/repository/npm-group/' is not recognized 
-that the path is correct and try again.
-At line:2 char:1
-+ https://nexus-ci.onefiserv.net/repository/npm-group/
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : ObjectNotFound: (https://nexus-c...tory/npm-group/:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
+reify:@zowe/cli: sill tarball no local data for @zowe/cli@https://xxx.net/repository/npm-group/@zowe
