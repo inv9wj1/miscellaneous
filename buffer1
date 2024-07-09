@@ -1,1 +1,21 @@
-reify:@zowe/cli: sill tarball no local data for @zowe/cli@https://xxx.net/repository/npm-group/@zowe
+npm verb stack HttpErrorGeneral: 404 Not Found - GET https://nexus-ci.onefiserv.net/repository/npm-group/raw-body/-/raw-body-2.3.3.tgz
+npm verb stack     at C:\Program Files\nodejs\node_modules\npm\node_modules\npm-registry-fetch\lib\check-response.js:95:15
+npm verb stack     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+npm verb statusCode 404
+npm verb pkgid raw-body@https://nexus-ci.onefiserv.net/repository/npm-group/raw-body/-/raw-body-2.3.3.tgz
+npm verb cwd C:\Users\F8512PV\Desktop\gitlab\zoops_server
+npm verb Windows_NT 10.0.19045
+npm verb node v18.18.2
+npm verb npm  v9.8.1
+npm ERR! code E404
+npm ERR! 404 Not Found - GET https://nexus-ci.onefiserv.net/repository/npm-group/raw-body/-/raw-body-2.3.3.tgz
+npm ERR! 404
+npm ERR! 404  'raw-body@https://nexus-ci.onefiserv.net/repository/npm-group/raw-body/-/raw-body-2.3.3.tgz' is not in this registry.
+npm ERR! 404
+npm ERR! 404 Note that you can also install from a
+npm ERR! 404 tarball, folder, http url, or git url.
+npm verb exit 1
+npm verb unfinished npm timer reify 1720507935044
+npm verb unfinished npm timer reify:unpack 1720507938196
+npm verb unfinished npm timer reifyNode:node_modules/express/node_modules/body-parser/node_modules/raw-body 1720507938202
+npm verb code 1
