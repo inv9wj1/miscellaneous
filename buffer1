@@ -1,34 +1,3 @@
-{
-  "name": "server",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www"
-  },
-  "dependencies": {
-    "@zowe/cli": "7.6.2",
-    "@zowe/core-for-zowe-sdk": "^7.6.2",
-    "@zowe/imperative": "^5.5.4",
-    "@zowe/secrets-for-zowe-sdk": "^7.18.6",
-    "@zowe/zos-jobs-for-zowe-sdk": "^7.6.2",
-    "@zowe/zos-tso-for-zowe-sdk": "^7.6.2",
-    "axios": "^1.7.2",
-    "body-parser": "^1.20.2",
-    "cookie-parser": "~1.4.4",
-    "cors": "^2.8.5",
-    "debug": "~2.6.9",
-    "dotenv": "^16.0.3",
-    "express": "~4.16.1",
-    "express-zip": "^3.0.0",
-    "helmet": "^5.1.1",
-    "jsdom": "^24.0.0",
-    "jsonwebtoken": "^9.0.2",
-    "jszip": "^3.10.1",
-    "morgan": "~1.9.1",
-    "tingodb": "^0.6.1"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.20"
-  }
-}
+Mainframe modernization unlocks new efficiencies, leveraging the power of contemporary technology while preserving the robustness of legacy systems. It enhances scalability and agility, positioning businesses to better adapt to market demands. Embracing modernization ensures long-term sustainability, driving innovation and competitive advantage.
+
+By integrating modern tools and methodologies, organizations can reduce operational costs and improve system performance. Modernization also facilitates seamless integration with cloud services, opening up new avenues for digital transformation and growth.
