@@ -1,4 +1,32 @@
-// Create an HTTPS agent that ignores SSL verification
-const httpsAgent = new https.Agent({
-    rejectUnauthorized: false,
+router.get("/getFileData2", async (req, res) => {
+  console.log("Inside MF router get /getFileData2");
+  // console.log("req.body: ", req.body);
+  console.log("req.trishabody: ", req.query.fileName);
+  console.log("req.trishamember: ", req.query.fileName);
+
+  try {
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+    Get.dataSet(session, req.query.fileName).then(
+      (val) => {
+        res.status(201).send(val.toString());
+        console.log("Response from RESHMIKA", val.toString());
+      },
+      (reason) => {
+        res.status(201).json({
+          message: "Invalid or No response from Mainframe :" + reason,
+        });
+        console.log("PRINTING REASON", reason);
+      }
+    );
+   
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
 });
