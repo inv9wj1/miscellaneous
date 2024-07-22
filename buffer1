@@ -1,65 +1,22 @@
-require('dotenv').config();
-const express = require('express');
-const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { ZosmfSession, ZosFiles } = require('@zowe/zos-files-for-zowe-sdk');
-const { Logger } = require('@zowe/core');
+router.get("/download-dataset", async (req, res) => {
+  const datasetName = req.query.dataset; // get dataset name from query parameters
 
-const app = express();
-app.use(bodyParser.json());
-
-const users = {
-  'user1': { passwordHash: bcrypt.hashSync('password1', 10) }, // Example user
-  // Add other users here
-};
-
-app.post('/api/login', (req, res) => {
-  const { userId, password } = req.body;
-  const user = users[userId];
-
-  if (user && bcrypt.compareSync(password, user.passwordHash)) {
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
+  if (!datasetName) {
+    return res.status(400).send("Dataset name is required");
   }
-});
-
-const authenticateJWT = (req, res, next) => {
-  const token = req.headers.authorization;
-  if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(401);
-  }
-};
-
-app.get('/api/datasets', authenticateJWT, async (req, res) => {
-  const session = new ZosmfSession({
-    hostname: process.env.ZOSMF_HOSTNAME,
-    port: process.env.ZOSMF_PORT,
-    user: req.user.userId,
-    password: process.env.ZOSMF_PASSWORD,
-    rejectUnauthorized: false
-  });
 
   try {
-    const response = await ZosFiles.listDsn(session, { filter: 'USERID.*' });
-    res.json(response.apiResponse.items);
-  } catch (err) {
-    Logger.getLogger().error(err.message);
-    res.status(500).json({ message: err.message });
+    const session = await createSession();
+    const options = { failFast: false };
+    const response = await Download.allMembers(session, datasetName, options);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${datasetName}.txt"`
+    );
+    res.setHeader("Content-Type", "text/plain");
+    res.send(response.toString());
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error downloading dataset");
   }
-});
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });
