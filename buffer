@@ -29,3 +29,33 @@ router.get("/getFileData2", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+
+
+
+
+
+
+
+router.get("/download-dataset", async (req, res) => {
+  const datasetName = req.query.dataset; // get dataset name from query parameters
+
+  if (!datasetName) {
+    return res.status(400).send("Dataset name is required");
+  }
+
+  try {
+    const session = await createSession();
+    const options = { failFast: false };
+    const response = await Download.allMembers(session, datasetName, options);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${datasetName}.txt"`
+    );
+    res.setHeader("Content-Type", "text/plain");
+    res.send(response.toString());
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error downloading dataset");
+  }
+});
