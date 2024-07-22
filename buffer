@@ -1,18 +1,14 @@
 router.get("/getFileData2", async (req, res) => {
-  console.log("Inside MF router get /getFileData2");
-  // console.log("req.body: ", req.body);
-  console.log("req.trishabody: ", req.query.fileName);
-  console.log("req.trishamember: ", req.query.fileName);
+  const datasetName = req.query.dataset; // get dataset name from query parameters
+
+    if (!datasetName) {
+    return res.status(400).send("Dataset name is required");
+  }
 
   try {
-    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
-    const sessCfgWithCreds =
-      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
-        sessCfg,
-        profile
-      );
-    const session = new ProfileInfo.Session(sessCfgWithCreds);
-    Get.dataSet(session, req.query.fileName).then(
+    const session = await createSession();
+    const options = { failFast: false };
+    const response = await Get.dataSet(session, req.query.dataset).then(
       (val) => {
         res.status(201).send(val.toString());
         console.log("Response from RESHMIKA", val.toString());
@@ -27,35 +23,5 @@ router.get("/getFileData2", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
-  }
-});
-
-
-
-
-
-
-
-
-router.get("/download-dataset", async (req, res) => {
-  const datasetName = req.query.dataset; // get dataset name from query parameters
-
-  if (!datasetName) {
-    return res.status(400).send("Dataset name is required");
-  }
-
-  try {
-    const session = await createSession();
-    const options = { failFast: false };
-    const response = await Download.allMembers(session, datasetName, options);
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${datasetName}.txt"`
-    );
-    res.setHeader("Content-Type", "text/plain");
-    res.send(response.toString());
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error downloading dataset");
   }
 });
