@@ -24,7 +24,6 @@ router.get("/getFileData2", async (req, res) => {
         console.log("PRINTING REASON", reason);
       }
     );
-   
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
