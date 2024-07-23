@@ -1,115 +1,171 @@
+import { Layout } from "antd";
+import "./App.css";
+import "./Header.css";
+import { useEffect } from "react";
+import axiosConnect from "./api/axiosConnect";
+import React, { useState } from "react";
+import DagreFlowChart from "./DagreFlowChart";
+import { Modal, Button, Input } from "antd";
 
- 
+function App() {
+  const [jsonData, setJsonData] = useState("");
+  const [showTable, setShowTable] = useState(false);
 
-// Zowe session configuration request using ltpatoken2
-const zosmfHost = "xxxxx.1dc.com"; // replace with your z/OSMF host
-const zosmfPort = 443; // replace with your z/OSMF port
-const userr = "xxxxxxx"; // replace with your z/OSMF username
-const passwordd = "yyyyyyy"; // replace with your z/OSMF password
-
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
-
-let ltpaToken = null;
-let tokenExpirationTime = null;
-
-async function getLtpaToken(userr, passwordd) {
-  const auth = Buffer.from(`${userr}:${passwordd}`).toString("base64");
-
-  try {
-    const response = await axios.post(
-      `https://${zosmfHost}:${zosmfPort}/zosmf/services/authenticate`,
-      null,
-      {
-        headers: {
-          Authorization: `Basic ${auth}`,
-          "X-CSRF-ZOSMF-HEADER": "dummy", // Add your actual header value here
-        },
-        httpsAgent,
-        withCredentials: true, // Ensure that axios includes cookies in the request
-      }
-    );
-    console.log("logging in with ", userr);
-    // Log the response headers to see the cookies
-    console.log("Response headers:", response.headers);
-
-    const setCookieHeader = response.headers["set-cookie"];
-
-    if (!setCookieHeader) {
-      throw new Error("Set-Cookie header not found in response");
-    }
-
-    // Find the LTPA token in the cookies
-    const ltpaCookie = setCookieHeader.find((cookie) =>
-      cookie.startsWith("LtpaToken2=")
-    );
-    console.log("ltpaToken2 is", ltpaCookie);
-    if (!ltpaCookie) {
-      throw new Error("LTPA token not found in cookies");
-    }
-
-    // Extract the token value from the cookie
-    ltpaToken = ltpaCookie.split(";")[0].split("=")[1];
-    console.log("ltpaToken is", ltpaToken);
-    // Optionally, you can parse and handle the expiration time if available
-    // Example: assuming the cookie contains an expiration time
-    // const expirationMatch = ltpaCookie.match(/Expires=(.*?);/);
-    // if (expirationMatch) {
-    //     tokenExpirationTime = new Date(expirationMatch[1]).getTime();
-    // }
-
-    return ltpaToken;
-  } catch (error) {
-    console.error("Error obtaining LTPA token:", error);
-    throw error;
-  }
-}
-
-async function createSession(userr, passwordd) {
-  const currentTime = Date.now();
-
-  if (
-    !ltpaToken ||
-    (tokenExpirationTime && currentTime >= tokenExpirationTime)
-  ) {
-    console.log("LTPA token expired or not found, obtaining a new token.");
-    await getLtpaToken(userr, passwordd);
-  }
-
-  return new Session({
-    hostname: "xxxxxxx.1dc.com",
-    port: 443,
-    rejectUnauthorized: false,
-    // Specify LTPA token type and value on the session object.
-    type: "token",
-    tokenType: "LtpaToken2",
-    tokenValue: ltpaToken,
+  const [visible, setVisible] = useState(false);
+  const [responseModalVisible, setResponseModalVisible] = useState(false);
+  const [formData, setFormData] = useState({
+    MF_USER_TSO: "",
+    MF_HOST: "",
+    MF_PORT: "",
+    MF_USER_ZOS: "",
+    MF_PASSWORD: "",
   });
-}
+  const [response, setResponse] = useState(null);
 
-router.post("/login", async (req, res) => {
-  const { userr, passwordd } = req.body;
+  useEffect(() => {
+    console.log("formData updated:", formData);
+  }, [formData]);
 
-  if (!userr) {
-    return res.status(400).send("user name is required");
-  }
+  const showModal = () => {
+    setVisible(true);
+  };
 
-  if (!passwordd) {
-    return res.status(400).send("Password is required");
-  }
+  const handleOk = async () => {
+    setVisible(false);
+    try {
+      const response = await axiosConnect.post(
+        "/login",
+        null,
+        {
+          params: formData,
+        },
+        { withCredentials: true }
+      );
 
-  try {
-    const ltpaToken = await getLtpaToken(userr, passwordd);
-    // Set the token as a cookie
-    res.cookie('ltpaToken', ltpaToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict'
+      console.log("res is " + response.data);
+      setResponse(response.data);
+      setResponseModalVisible(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+  };
+
+  const handleResponseModalOk = () => {
+    setResponseModalVisible(false);
+  };
+
+  const handleResponseModalCancel = () => {
+    setResponseModalVisible(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
     });
-    res.status(200).json({ message: "Logged in successfully", token: ltpaToken });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Log in failed", error: err.message });
-  }
-});
+    console.log("formdata is ", formData);
+  };
+
+  return (
+    <>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          left: "-5px",
+          border: "2px solid #fc6500",
+        }}
+        className="mdc-layout-grid"
+      >
+        <div style={{ height: "15%", border: "2px solid #fc6500" }}>
+          <div className="mdc-layout-grid__inner">
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+              {/* <Header /> */}
+              <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+                <div id="u842" className="ax_default image">
+                  <img
+                    id="u842_img"
+                    className="img"
+                    src={require("./assets/images/fiservlogo.png")}
+                    alt="fiserv logo"
+                  />
+                  <div id="u877" className="ax_default line">
+                    <img
+                      id="u877_img"
+                      className="img"
+                      src={require("./assets/images/line.png")}
+                      alt="line"
+                    />
+                  </div>
+                  <div className="title">
+                    <Button type="primary" onClick={showModal}>
+                      Login
+                    </Button>
+                    <Modal
+                      title="Login"
+                      visible={visible}
+                      onOk={handleOk}
+                      onCancel={handleCancel}
+                    >
+                      <Input
+                        placeholder="MF_USER_TSO"
+                        defaultValue="IZUACCT"
+                        name="MF_USER_TSO"
+                        value={formData.MF_USER_TSO}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        placeholder="MF_HOST"
+                        name="MF_HOST"
+                        value={formData.MF_HOST}
+                        onChange={handleChange}
+                        defaultValue="tplavipa.1dc.com"
+                      />
+                      <Input
+                        placeholder="MF_PORT"
+                        name="MF_PORT"
+                        value={formData.MF_PORT}
+                        onChange={handleChange}
+                        defaultValue="443"
+                      />
+                      <Input
+                        placeholder="MF_USER_ZOS"
+                        name="MF_USER_ZOS"
+                        value={formData.MF_USER_ZOS}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        placeholder="MF_PASSWORD"
+                        name="MF_PASSWORD"
+                        value={formData.MF_PASSWORD}
+                        onChange={handleChange}
+                      />
+                    </Modal>
+                    <Modal
+                      title="Response"
+                      visible={responseModalVisible}
+                      onOk={handleResponseModalOk}
+                      onCancel={handleResponseModalCancel}
+                    ></Modal>
+                    Fund Train
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br />
+          <br />
+        </div>
+        <div style={{ height: "85%", border: "2px solid #fc6500" }}>
+          <DagreFlowChart jsonFile={jsonData} />
+        </div>
+      </div>
+    </>
+  );
+}
+export default App;
