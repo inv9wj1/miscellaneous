@@ -1,28 +1,5 @@
-router.get("/getFileData2", async (req, res) => {
-  const datasetName = req.query.dataset; // get dataset name from query parameters
-
-  if (!datasetName) {
-    return res.status(400).send("Dataset name is required");
-  }
-
-  try {
-    const session = await createSession();
-    const options = { failFast: false };
-    
-    await Get.dataSet(session, datasetName).then(
-      (val) => {
-        res.status(200).send(val.toString());
-        console.log("Response from RESHMIKA", val.toString());
-      },
-      (reason) => {
-        res.status(500).json({
-          message: "Invalid or No response from Mainframe: " + reason,
-        });
-        console.log("PRINTING REASON", reason);
+   // Extract the token and save it in a cookie
+      const token = response.data.token;
+      if (token) {
+        Cookies.set('token', token, { expires: 1 }); // The token will expire in 1 day
       }
-    );
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
-});
