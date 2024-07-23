@@ -1,22 +1,115 @@
-router.get("/download-dataset", async (req, res) => {
-  const datasetName = req.query.dataset; // get dataset name from query parameters
 
-  if (!datasetName) {
-    return res.status(400).send("Dataset name is required");
+ 
+
+// Zowe session configuration request using ltpatoken2
+const zosmfHost = "xxxxx.1dc.com"; // replace with your z/OSMF host
+const zosmfPort = 443; // replace with your z/OSMF port
+const userr = "xxxxxxx"; // replace with your z/OSMF username
+const passwordd = "yyyyyyy"; // replace with your z/OSMF password
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
+
+let ltpaToken = null;
+let tokenExpirationTime = null;
+
+async function getLtpaToken(userr, passwordd) {
+  const auth = Buffer.from(`${userr}:${passwordd}`).toString("base64");
+
+  try {
+    const response = await axios.post(
+      `https://${zosmfHost}:${zosmfPort}/zosmf/services/authenticate`,
+      null,
+      {
+        headers: {
+          Authorization: `Basic ${auth}`,
+          "X-CSRF-ZOSMF-HEADER": "dummy", // Add your actual header value here
+        },
+        httpsAgent,
+        withCredentials: true, // Ensure that axios includes cookies in the request
+      }
+    );
+    console.log("logging in with ", userr);
+    // Log the response headers to see the cookies
+    console.log("Response headers:", response.headers);
+
+    const setCookieHeader = response.headers["set-cookie"];
+
+    if (!setCookieHeader) {
+      throw new Error("Set-Cookie header not found in response");
+    }
+
+    // Find the LTPA token in the cookies
+    const ltpaCookie = setCookieHeader.find((cookie) =>
+      cookie.startsWith("LtpaToken2=")
+    );
+    console.log("ltpaToken2 is", ltpaCookie);
+    if (!ltpaCookie) {
+      throw new Error("LTPA token not found in cookies");
+    }
+
+    // Extract the token value from the cookie
+    ltpaToken = ltpaCookie.split(";")[0].split("=")[1];
+    console.log("ltpaToken is", ltpaToken);
+    // Optionally, you can parse and handle the expiration time if available
+    // Example: assuming the cookie contains an expiration time
+    // const expirationMatch = ltpaCookie.match(/Expires=(.*?);/);
+    // if (expirationMatch) {
+    //     tokenExpirationTime = new Date(expirationMatch[1]).getTime();
+    // }
+
+    return ltpaToken;
+  } catch (error) {
+    console.error("Error obtaining LTPA token:", error);
+    throw error;
+  }
+}
+
+async function createSession(userr, passwordd) {
+  const currentTime = Date.now();
+
+  if (
+    !ltpaToken ||
+    (tokenExpirationTime && currentTime >= tokenExpirationTime)
+  ) {
+    console.log("LTPA token expired or not found, obtaining a new token.");
+    await getLtpaToken(userr, passwordd);
+  }
+
+  return new Session({
+    hostname: "xxxxxxx.1dc.com",
+    port: 443,
+    rejectUnauthorized: false,
+    // Specify LTPA token type and value on the session object.
+    type: "token",
+    tokenType: "LtpaToken2",
+    tokenValue: ltpaToken,
+  });
+}
+
+router.post("/login", async (req, res) => {
+  const { userr, passwordd } = req.body;
+
+  if (!userr) {
+    return res.status(400).send("user name is required");
+  }
+
+  if (!passwordd) {
+    return res.status(400).send("Password is required");
   }
 
   try {
-    const session = await createSession();
-    const options = { failFast: false };
-    const response = await Download.allMembers(session, datasetName, options);
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${datasetName}.txt"`
-    );
-    res.setHeader("Content-Type", "text/plain");
-    res.send(response.toString());
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error downloading dataset");
+    const ltpaToken = await getLtpaToken(userr, passwordd);
+    // Set the token as a cookie
+    res.cookie('ltpaToken', ltpaToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict'
+    });
+    res.status(200).json({ message: "Logged in successfully", token: ltpaToken });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Log in failed", error: err.message });
   }
 });
