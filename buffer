@@ -1,4 +1,45 @@
-const token = req.token;
-  if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
+<div className="title">
+                    <Button type="primary" onClick={showModal}>
+                      Login
+                    </Button>
+                    <Modal
+                      title="Login"
+                      visible={visible}
+                      onOk={handleOk}
+                      onCancel={handleCancel}
+                    >
+                      <Input
+                        placeholder="MF_USER_TSO"
+                        defaultValue="IZUACCT"
+                        name="MF_USER_TSO"
+                        value={formData.MF_USER_TSO}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        placeholder="MF_HOST"
+                        name="MF_HOST"
+                        value={formData.MF_HOST}
+                        onChange={handleChange}
+                        defaultValue="tplavipa.1dc.com"
+                      />
+                      <Input
+                        placeholder="MF_PORT"
+                        name="MF_PORT"
+                        value={formData.MF_PORT}
+                        onChange={handleChange}
+                        defaultValue="443"
+                      />
+                      <Input
+                        placeholder="MF_USER_ZOS"
+                        name="MF_USER_ZOS"
+                        value={formData.MF_USER_ZOS}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        placeholder="MF_PASSWORD"
+                        name="MF_PASSWORD"
+                        value={formData.MF_PASSWORD}
+                        onChange={handleChange}
+                      />
+                    </Modal>
+                  
