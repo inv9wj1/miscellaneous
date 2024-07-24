@@ -1,14 +1,21 @@
-app.get('/getFileData2', (req, res) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+async function createSession(token) {
+  const currentTime = Date.now();
 
-  if (token == null) return res.sendStatus(401); // If no token, return Unauthorized
+  if (
+    !ltpaToken ||
+    (tokenExpirationTime && currentTime >= tokenExpirationTime)
+  ) {
+    console.log("LTPA token expired or not found, obtain a new token.");
+    // await getLtpaToken();
+  }
 
-  // Verify the token (using your preferred method/library)
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403); // If token is not valid, return Forbidden
-    req.user = user;
-    // Proceed with your logic to handle the request
-    res.send("Token is valid, and request is processed");
+  return new Session({
+    hostname: "tplavipa.1dc.com",
+    port: 443,
+    rejectUnauthorized: false,
+    // Specify LTPA token type and value on the session object.
+    type: "token",
+    tokenType: "LtpaToken2",
+    tokenValue: token,
   });
-});
+}
