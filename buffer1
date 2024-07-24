@@ -1,12 +1,14 @@
-const cors = require("cors");
+app.get('/getFileData2', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-// Enable CORS globally
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); // Add this if you need to specify allowed methods
-  next();
+  if (token == null) return res.sendStatus(401); // If no token, return Unauthorized
+
+  // Verify the token (using your preferred method/library)
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403); // If token is not valid, return Forbidden
+    req.user = user;
+    // Proceed with your logic to handle the request
+    res.send("Token is valid, and request is processed");
+  });
 });
