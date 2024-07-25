@@ -1,104 +1,12 @@
-import React, { useState } from 'react';
-import { Button, Modal, Input, Select } from 'antd';
+axiosConnect.post('/createSingleFileUsingApi', {"createFileName":createFileName, 
+                                                "modelFileName": modelFileName,
+                                                "inputValues":inputValues, 
+                                                "tabName":tabName
+                                              })
 
-const { Option } = Select;
 
-const YourComponent = () => {
-  const [visible, setVisible] = useState(false);
-  const [formData, setFormData] = useState({
-    MF_USER_TSO: 'IZUACCT',
-    MF_HOST: 'aaa.com',
-    MF_PORT: '443',
-    MF_USER_ZOS: '',
-    MF_PASSWORD: ''
-  });
-
-  const showModal = () => {
-    setVisible(true);
-  };
-
-  const handleOk = () => {
-    setVisible(false);
-  };
-
-  const handleCancel = () => {
-    setVisible(false);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const handleHostChange = (value) => {
-    const hostMapping = {
-      sysa: { host: 'aaa.com', port: '111' },
-      sysb: { host: 'bbb.com', port: '222' },
-      sysc: { host: 'ccc.com', port: '333' },
-      sysd: { host: 'ddd.com', port: '444' },
-      syse: { host: 'eee.com', port: '555' }
-    };
-    setFormData({
-      ...formData,
-      MF_HOST: hostMapping[value].host,
-      MF_PORT: hostMapping[value].port
-    });
-  };
-
-  return (
-    <div className="title">
-      <Button type="primary" onClick={showModal}>
-        Login
-      </Button>
-      <Modal
-        title="Login"
-        visible={visible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <Input
-          placeholder="MF_USER_TSO"
-          defaultValue="IZUACCT"
-          name="MF_USER_TSO"
-          value={formData.MF_USER_TSO}
-          onChange={handleChange}
-        />
-        <Select
-          placeholder="Select MF_HOST"
-          value={formData.MF_HOST}
-          onChange={handleHostChange}
-          style={{ width: '100%', marginBottom: '16px' }}
-        >
-          <Option value="sysa">sysa</Option>
-          <Option value="sysb">sysb</Option>
-          <Option value="sysc">sysc</Option>
-          <Option value="sysd">sysd</Option>
-          <Option value="syse">syse</Option>
-        </Select>
-        <Input
-          placeholder="MF_PORT"
-          name="MF_PORT"
-          value={formData.MF_PORT}
-          onChange={handleChange}
-        />
-        <Input
-          placeholder="MF_USER_ZOS"
-          name="MF_USER_ZOS"
-          value={formData.MF_USER_ZOS}
-          onChange={handleChange}
-        />
-        <Input
-          placeholder="MF_PASSWORD"
-          name="MF_PASSWORD"
-          value={formData.MF_PASSWORD}
-          onChange={handleChange}
-        />
-      </Modal>
-    </div>
-  );
-};
-
-export default YourComponent;
+  axiosConnect
+      .get("/getFileSpaceData", {
+        params: {
+          "fileDir":searchInput,
+        },
