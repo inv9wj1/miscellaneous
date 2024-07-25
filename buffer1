@@ -1,8 +1,3 @@
-try {
-  const response = await axiosConnect.post(
-    "/login",
-    formData, // Send formData in the body
-    {
-      withCredentials: true
-    }
-  );
+router.post("/login", bodyParser.json(), async (req, res) => {
+  console.log("req.query is ", req.query);
+  const { MF_USER_TSO, MF_HOST, MF_PORT, MF_USER_ZOS, MF_PASSWORD } = req.query;
