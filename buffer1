@@ -1,8 +1,8 @@
 useEffect(() => {
-    const token = Cookies.get("token"); // Get the token from the cookie
-    console.log("token value from cookies.get is ", token);
-    axiosConnect
-      .get("/getFileData2", {
+    if (visible) {
+      const token = Cookies.get("token"); // Get the token from the cookie
+      console.log("token value from cookies.get is ", token);
+      axios.get("/getFileData2", {
         params: {
           fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
         },
@@ -25,4 +25,5 @@ useEffect(() => {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+    }
+  }, [visible]);
