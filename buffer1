@@ -1,3 +1,28 @@
-router.post("/login", bodyParser.json(), async (req, res) => {
-  console.log("req.query is ", req.query);
-  const { MF_USER_TSO, MF_HOST, MF_PORT, MF_USER_ZOS, MF_PASSWORD } = req.query;
+useEffect(() => {
+    const token = Cookies.get("token"); // Get the token from the cookie
+    console.log("token value from cookies.get is ", token);
+    axiosConnect
+      .get("/getFileData2", {
+        params: {
+          fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
+        },
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+          Authorization: `Bearer ${token}`, // Add the token here
+        },
+      })
+      .then((response) => {
+        console.log(response);
+        console.log("Data received from getFileSpaceData: " + response.data);
+        const jsonObject1 = response.data.replace(/\s/g, "");
+        const jsonObject = JSON.parse(jsonObject1);
+        console.log(jsonObject);
+        setJsonData(jsonObject);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
