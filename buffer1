@@ -39,8 +39,11 @@ function simulateKeystroke() {
     }
   }
 
+  // Get the current system time
+  const currentTime = new Date().toLocaleTimeString();
+
   // Join the words into a single string
-  const randomString = words.join(" ");
+  const randomString = words.join(" ") + ` (Words: ${currentWordCount}, Time: ${currentTime})`;
 
   // Execute PowerShell command to simulate keystrokes with the random string
   exec(
@@ -60,13 +63,24 @@ function simulateKeystroke() {
   );
 }
 
-// Simulate keystroke every 2 minutes
-const intervalId = setInterval(() => {
+// Function to generate a random interval between 1 and 4 minutes
+function getRandomInterval() {
+  const minInterval = 1 * 60 * 1000; // 1 minute in milliseconds
+  const maxInterval = 4 * 60 * 1000; // 4 minutes in milliseconds
+  return Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+}
+
+// Simulate keystroke at a random interval between 1 and 4 minutes
+function startSimulation() {
   simulateKeystroke();
-}, 2 * 60 * 1000);
+  const interval = getRandomInterval();
+  setTimeout(startSimulation, interval);
+}
+
+// Start the simulation
+startSimulation();
 
 // Set a timeout to stop the script after 3 hours
 setTimeout(() => {
-  clearInterval(intervalId);
   console.log("3 hours finished pinging");
 }, 3 * 60 * 60 * 1000); // 3 hours in milliseconds
