@@ -1,20 +1,46 @@
 const { exec } = require("child_process");
 
+// Function to generate a random word of a given length
+function generateRandomWord(length) {
+  const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let word = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * letters.length);
+    word += letters[randomIndex];
+  }
+  return word;
+}
+
 // Function to simulate keystrokes
 function simulateKeystroke() {
-  // Generate a random string of 35 different letters
-  const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(
-    ""
-  );
-  const randomLetters = [];
-  while (randomLetters.length < 35) {
-    const randomIndex = Math.floor(Math.random() * letters.length);
-    const randomLetter = letters[randomIndex];
-    if (!randomLetters.includes(randomLetter)) {
-      randomLetters.push(randomLetter);
+  const minTotalWords = 20;
+  const maxTotalWords = 30;
+  const minWordsPerSecond = 2;
+  const maxWordsPerSecond = 4;
+  const minWordLength = 2;
+  const maxWordLength = 4;
+
+  // Generate a random number of total words to generate (between 20 and 30)
+  const totalWords = Math.floor(Math.random() * (maxTotalWords - minTotalWords + 1)) + minTotalWords;
+
+  const words = [];
+  let currentWordCount = 0;
+
+  while (currentWordCount < totalWords) {
+    // Generate a random number of words per second (between 2 and 4)
+    const wordsPerSecond = Math.floor(Math.random() * (maxWordsPerSecond - minWordsPerSecond + 1)) + minWordsPerSecond;
+
+    for (let i = 0; i < wordsPerSecond && currentWordCount < totalWords; i++) {
+      // Generate a random word length (between 2 and 4)
+      const wordLength = Math.floor(Math.random() * (maxWordLength - minWordLength + 1)) + minWordLength;
+      const word = generateRandomWord(wordLength);
+      words.push(word);
+      currentWordCount++;
     }
   }
-  const randomString = randomLetters.join("");
+
+  // Join the words into a single string
+  const randomString = words.join(" ");
 
   // Execute PowerShell command to simulate keystrokes with the random string
   exec(
@@ -42,5 +68,5 @@ const intervalId = setInterval(() => {
 // Set a timeout to stop the script after 3 hours
 setTimeout(() => {
   clearInterval(intervalId);
-  console.log("3 times finished pinging");
+  console.log("3 hours finished pinging");
 }, 3 * 60 * 60 * 1000); // 3 hours in milliseconds
