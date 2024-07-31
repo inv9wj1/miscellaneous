@@ -51,14 +51,14 @@ function simulateKeystroke() {
   // Join the words into a single string
   const randomString =
     words.join(" ") +
-    `\n(Words: ${currentWordCount}, Time: ${currentTime})\n\n`;
+    `\n(Words: ${currentWordCount}, Time: ${currentTime})`;
 
   // Execute PowerShell command to simulate keystrokes with the random string
   exec(
     `powershell.exe -Command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.SendKeys]::SendWait('${randomString.replace(
       /\n/g,
       "{ENTER}"
-    )}')"`,
+    )}{ENTER}')"`,
     (error, stdout, stderr) => {
       if (error) {
         console.error(`Error: ${error.message}`);
