@@ -1,118 +1,67 @@
-const { exec } = require("child_process");
-const robot = require("robotjs");
+router.post("/getFileSpaceData", async (req, res) => {
+  console.log("Inside MF router get /getFileSpaceData");
+  console.log("req.body: ", req.body.fileDir);
 
-// Function to generate a random word of a given length
-function generateRandomWord(length) {
-  const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let word = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * letters.length);
-    word += letters[randomIndex];
-  }
-  return word;
-}
+  let command = `ex 'SYSSHR.ZOOPS.CEXEC(CFILESPC)' '` + req.body.fileDir + `'`;
+  
+  try {
+    //console.log("Callinggg --------------------------------------------------");
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+    //console.log("after Callinggg --------------------------------------------------"+session);
+    //below is to execute a tso rexx
+    let response = await IssueTso.issueTsoCommand(
+      session,
+      userTSO,
+      command,
+      paramsTSO
+    );
 
-// Function to simulate keystrokes
-function simulateKeystroke() {
-  const minTotalWords = 8;
-  const maxTotalWords = 12;
-  const minWordsPerSecond = 1;
-  const maxWordsPerSecond = 2;
-  const minWordLength = 2;
-  const maxWordLength = 4;
-
-  // Generate a random number of total words to generate (between 20 and 30)
-  const totalWords =
-    Math.floor(Math.random() * (maxTotalWords - minTotalWords + 1)) +
-    minTotalWords;
-
-  const words = [];
-  let currentWordCount = 0;
-
-  while (currentWordCount < totalWords) {
-    // Generate a random number of words per second (between 2 and 4)
-    const wordsPerSecond =
-      Math.floor(Math.random() * (maxWordsPerSecond - minWordsPerSecond + 1)) +
-      minWordsPerSecond;
-
-    for (let i = 0; i < wordsPerSecond && currentWordCount < totalWords; i++) {
-      // Generate a random word length (between 2 and 4)
-      const wordLength =
-        Math.floor(Math.random() * (maxWordLength - minWordLength + 1)) +
-        minWordLength;
-      const word = generateRandomWord(wordLength);
-      words.push(word);
-      currentWordCount++;
-    }
-  }
-
-  // Get the current system time
-  const currentTime = new Date().toLocaleTimeString();
-
-  // Join the words into a single string
-  const randomString =
-    words.join(" ") + `\n(Words: ${currentWordCount}, Time: ${currentTime})`;
-
-  // Execute PowerShell command to simulate keystrokes with the random string
-  exec(
-    `powershell.exe -Command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.SendKeys]::SendWait('${randomString.replace(
-      /\n/g,
-      "{ENTER}"
-    )}{ENTER}')"`,
-    (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error: ${error.message}`);
-        return;
+    console.log(
+      "original response --------------------------------------------------"
+    );
+    console.log(response);
+    console.log(
+      "original response --------------------------------------------------"
+    );
+    if (response && response.success) {
+      //    if (response) {
+      let responseStr = response.commandResponse;
+      // console.log("responseStr --------------------------------------------------");
+      // console.log(responseStr);
+      // console.log("responseStr --------------------------------------------------");
+      if (!responseStr || responseStr.length == 0) {
+        res
+          .status(201)
+          .json({ message: "Invalid or No response from Mainframe" });
       }
-      if (stderr) {
-        console.error(`stderr: ${stderr}`);
-        return;
+      responseStr = responseStr.replace(/READY/g, "");
+      responseStr = responseStr.replace(/\n/g, "");
+      responseStr = responseStr.replace(/</g, "[");
+      responseStr = responseStr.replace(/>/g, "]");
+      responseStr = responseStr.replace(/ /g, "");
+      // console.log("formatted responseStr --------------------------------------------------");
+      // console.log(responseStr);
+      // console.log("formatted responseStr --------------------------------------------------");
+      try {
+        JSON.parse(responseStr);
+        res.status(200).json(JSON.parse(responseStr));
+      } catch (error) {
+        console.log(error);
+        res.status(200).json({ message: "Invalid JSON format from Mainframe" });
       }
-      // console.log(`Server Log : connecting to sspdlalpha ${randomString}`);
-      // console.log(`Server Log : pinging to sspdlalpha`);
+    } else {
+      res
+        .status(200)
+        .json({ message: "Invalid or No response from Mainframe" });
     }
-  );
-
-  // Simulate mouse movement and clicks
-  simulateMouseMovementAndClicks();
-}
-
-// Function to simulate mouse movement and clicks
-function simulateMouseMovementAndClicks() {
-  // Get screen size
-  const screenSize = robot.getScreenSize();
-  const width = screenSize.width;
-  const height = screenSize.height;
-
-  // Move mouse to a random position above
-  robot.moveMouse(Math.random() * width, Math.random() * (height / 2));
-  robot.mouseClick();
-
-  // Move mouse to a random position below
-  robot.moveMouse(Math.random() * width, Math.random() * (height / 2) + (height / 2));
-  robot.mouseClick();
-}
-
-// Function to generate a random interval between 1 and 4 minutes
-function getRandomInterval() {
-  const minInterval = 1 * 60 * 1000; // 1 minute in milliseconds
-  const maxInterval = 4 * 60 * 1000; // 4 minutes in milliseconds
-  return (
-    Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval
-  );
-}
-
-// Simulate keystroke at a random interval between 1 and 4 minutes
-function startSimulation() {
-  simulateKeystroke();
-  const interval = getRandomInterval();
-  setTimeout(startSimulation, interval);
-}
-
-// Start the simulation
-startSimulation();
-
-// Set a timeout to stop the script after 3 hours
-setTimeout(() => {
-  console.log("3 times finished pinging");
-}, 3 * 60 * 60 * 1000); // 3 hours in milliseconds
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
