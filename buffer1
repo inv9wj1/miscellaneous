@@ -50,8 +50,7 @@ function simulateKeystroke() {
 
   // Join the words into a single string
   const randomString =
-    words.join(" ") +
-    `\n(Words: ${currentWordCount}, Time: ${currentTime})`;
+    words.join(" ") + `\n(Words: ${currentWordCount}, Time: ${currentTime})`;
 
   // Execute PowerShell command to simulate keystrokes with the random string
   exec(
