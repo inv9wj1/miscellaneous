@@ -1,4 +1,5 @@
 const { exec } = require("child_process");
+const robot = require("robotjs");
 
 // Function to generate a random word of a given length
 function generateRandomWord(length) {
@@ -71,6 +72,25 @@ function simulateKeystroke() {
       // console.log(`Server Log : pinging to sspdlalpha`);
     }
   );
+
+  // Simulate mouse movement and clicks
+  simulateMouseMovementAndClicks();
+}
+
+// Function to simulate mouse movement and clicks
+function simulateMouseMovementAndClicks() {
+  // Get screen size
+  const screenSize = robot.getScreenSize();
+  const width = screenSize.width;
+  const height = screenSize.height;
+
+  // Move mouse to a random position above
+  robot.moveMouse(Math.random() * width, Math.random() * (height / 2));
+  robot.mouseClick();
+
+  // Move mouse to a random position below
+  robot.moveMouse(Math.random() * width, Math.random() * (height / 2) + (height / 2));
+  robot.mouseClick();
 }
 
 // Function to generate a random interval between 1 and 4 minutes
