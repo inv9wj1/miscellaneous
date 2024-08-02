@@ -1,12 +1,29 @@
-const getFileSpaceDataResponse = await axiosConnect.post("/getFileSpaceData", 
-      { fileDir: searchInput }, 
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers":
-            "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
-          Authorization: `Bearer ${token}`, // Add the token here
+axiosConnect
+      .get("/getFileData2", {
+        params: {
+          fileName: fileName,
         },
-      }
-    );
+        {
+          headers: {
+            "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers":
+              "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+            Authorization: `Bearer ${token}`, // Add the token here
+          }
+        }
+      })
+      .then((response) => {
+        //handle success
+        console.log(response.data);
+        setVisible(true);
+        console.log("modal count before " + modalCount);
+        setModalCount(modalCount + 1);
+        console.log("modal count is " + modalCount);
+
+        // setFileContent(JSON.stringify(response.data));
+        setFileContent(
+          typeof response.data != "string"
+            ? JSON.stringify(response.data)
+            : response.data
+        );
