@@ -1,8 +1,6 @@
-axiosConnect
-      .get("/getFileData2", {
-        params: {
-          fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
-        },
+const getFileSpaceDataResponse = await axiosConnect.post("/getFileSpaceData", 
+      { fileDir: searchInput }, 
+      {
         headers: {
           "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
           "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -10,53 +8,5 @@ axiosConnect
             "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
           Authorization: `Bearer ${token}`, // Add the token here
         },
-      })
-      .then((response) => {
-        console.log(response);
-        console.log("Data received from getFileSpaceData: " + response.data);
-        const jsonObject1 = response.data.replace(/\s/g, "");
-        const jsonObject = JSON.parse(jsonObject1);
-        console.log(jsonObject);
-        setJsonData(jsonObject);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-
-axiosConnect
-      .post("/getFileSpaceData", { fileDir: searchInput })
-      .then((response) => {
-        //handle success
-        console.log(response);
-        console.log("Data received from getFileSpaceData" + response.data);
-        setResponse(response);
-        setAllCardData(response.data);
-        let folderChainTemp = [];
-        let filesTemp = [];
-        const [found, filesTemp1, folderChainTemp1] = folderSearch(
-          response.data,
-          folderChainTemp,
-          currentFolder
-        );
-
-        console.log("found is " + found);
-        if (found) {
-          console.log("found", filesTemp1, folderChainTemp1);
-          filesTemp = filesTemp1;
-          folderChainTemp = folderChainTemp1;
-        }
-
-        console.log("files", filesTemp);
-        console.log("folders", folderChainTemp);
-        setFolderChain(folderChainTemp);
-        setFiles(filesTemp);
-        handleOnLoading(false);
-      })
-      .catch((err) => {
-        //handle error
-        console.log(err);
-        // setCommandOutput("Error while getting the Files Directory: " + fullCommand);
-        handleOnLoading(false);
-      });
-  };
+      }
+    );
