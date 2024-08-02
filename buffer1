@@ -2,19 +2,21 @@ router.post("/getFileSpaceData", async (req, res) => {
   console.log("Inside MF router get /getFileSpaceData");
   console.log("req.body: ", req.body.fileDir);
 
-  let command = `ex 'SYSSHR.ZOOPS.CEXEC(CFILESPC)' '` + req.body.fileDir + `'`;
-  
+  const authHeader = req.headers["authorization"];
+  console.log("auth header is ", authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log("token value is ", token);
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
   try {
-    //console.log("Callinggg --------------------------------------------------");
-    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
-    const sessCfgWithCreds =
-      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
-        sessCfg,
-        profile
-      );
-    const session = new ProfileInfo.Session(sessCfgWithCreds);
-    //console.log("after Callinggg --------------------------------------------------"+session);
-    //below is to execute a tso rexx
+    const session = await createSession(token);
+    console.log(session);
+
+    let command = `ex 'SYSSHR.ZOOPS.CEXEC(CFILESPC)' '` + req.body.fileDir + `'`;
+
+    // Execute a TSO REXX command
     let response = await IssueTso.issueTsoCommand(
       session,
       userTSO,
@@ -22,43 +24,32 @@ router.post("/getFileSpaceData", async (req, res) => {
       paramsTSO
     );
 
-    console.log(
-      "original response --------------------------------------------------"
-    );
+    console.log("original response --------------------------------------------------");
     console.log(response);
-    console.log(
-      "original response --------------------------------------------------"
-    );
+    console.log("original response --------------------------------------------------");
+
     if (response && response.success) {
-      //    if (response) {
       let responseStr = response.commandResponse;
-      // console.log("responseStr --------------------------------------------------");
-      // console.log(responseStr);
-      // console.log("responseStr --------------------------------------------------");
+
       if (!responseStr || responseStr.length == 0) {
-        res
-          .status(201)
-          .json({ message: "Invalid or No response from Mainframe" });
-      }
-      responseStr = responseStr.replace(/READY/g, "");
-      responseStr = responseStr.replace(/\n/g, "");
-      responseStr = responseStr.replace(/</g, "[");
-      responseStr = responseStr.replace(/>/g, "]");
-      responseStr = responseStr.replace(/ /g, "");
-      // console.log("formatted responseStr --------------------------------------------------");
-      // console.log(responseStr);
-      // console.log("formatted responseStr --------------------------------------------------");
-      try {
-        JSON.parse(responseStr);
-        res.status(200).json(JSON.parse(responseStr));
-      } catch (error) {
-        console.log(error);
-        res.status(200).json({ message: "Invalid JSON format from Mainframe" });
+        res.status(201).json({ message: "Invalid or No response from Mainframe" });
+      } else {
+        responseStr = responseStr.replace(/READY/g, "");
+        responseStr = responseStr.replace(/\n/g, "");
+        responseStr = responseStr.replace(/</g, "[");
+        responseStr = responseStr.replace(/>/g, "]");
+        responseStr = responseStr.replace(/ /g, "");
+
+        try {
+          JSON.parse(responseStr);
+          res.status(200).json(JSON.parse(responseStr));
+        } catch (error) {
+          console.log(error);
+          res.status(200).json({ message: "Invalid JSON format from Mainframe" });
+        }
       }
     } else {
-      res
-        .status(200)
-        .json({ message: "Invalid or No response from Mainframe" });
+      res.status(200).json({ message: "Invalid or No response from Mainframe" });
     }
   } catch (err) {
     console.log(err);
