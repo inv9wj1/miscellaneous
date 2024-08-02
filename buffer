@@ -1,31 +1,62 @@
-router.get("/getFileData2", async (req, res) => {
-  const datasetName = req.query.dataset; // get dataset name from query parameters
-  const authHeader = req.headers["authorization"];
-  console.log("auth header is ", authHeader);
-  const token = authHeader && authHeader.split(" ")[1];
-  console.log("token value is ", token);
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+axiosConnect
+      .get("/getFileData2", {
+        params: {
+          fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
+        },
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+          Authorization: `Bearer ${token}`, // Add the token here
+        },
+      })
+      .then((response) => {
+        console.log(response);
+        console.log("Data received from getFileSpaceData: " + response.data);
+        const jsonObject1 = response.data.replace(/\s/g, "");
+        const jsonObject = JSON.parse(jsonObject1);
+        console.log(jsonObject);
+        setJsonData(jsonObject);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
-  try {
-    const session = await createSession(token);
-    console.log(session);
-    const options = { failFast: false };
-    await Get.dataSet(session, req.query.fileName).then(
-      (val) => {
-        res.status(200).send(val.toString());
-        console.log("Response from Mainframe", val.toString());
-      },
-      (reason) => {
-        res.status(500).json({
-          message: "Invalid or No response from Mainframe: " + reason,
-        });
-        console.log("PRINTING REASON", reason);
-      }
-    );
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
-});
+
+axiosConnect
+      .post("/getFileSpaceData", { fileDir: searchInput })
+      .then((response) => {
+        //handle success
+        console.log(response);
+        console.log("Data received from getFileSpaceData" + response.data);
+        setResponse(response);
+        setAllCardData(response.data);
+        let folderChainTemp = [];
+        let filesTemp = [];
+        const [found, filesTemp1, folderChainTemp1] = folderSearch(
+          response.data,
+          folderChainTemp,
+          currentFolder
+        );
+
+        console.log("found is " + found);
+        if (found) {
+          console.log("found", filesTemp1, folderChainTemp1);
+          filesTemp = filesTemp1;
+          folderChainTemp = folderChainTemp1;
+        }
+
+        console.log("files", filesTemp);
+        console.log("folders", folderChainTemp);
+        setFolderChain(folderChainTemp);
+        setFiles(filesTemp);
+        handleOnLoading(false);
+      })
+      .catch((err) => {
+        //handle error
+        console.log(err);
+        // setCommandOutput("Error while getting the Files Directory: " + fullCommand);
+        handleOnLoading(false);
+      });
+  };
