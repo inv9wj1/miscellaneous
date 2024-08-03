@@ -1,131 +1,23 @@
-import { Modal, Typography, Button, Input, Typography, Form } from 'antd';
- 
-const { TextArea } = Input;
-const { Title } = Typography;
+ axiosConnect
+        .post("/createSingleFileUsingApi", {
+          createFileName: createFileName,
+          modelFileName: modelFileName,
+          inputValues: inputValues,
+          tabName: tabName,
+        })
 
-const modalInfo = (
-  <Modal
-    title="Dataset Attributes"
-    visible={visibleInfo}
-    onCancel={() => setVisibleInfo(false)}
-    footer={null}
-    width={800} // 'xl' size in Core UI translates to a specific width in Ant Design; adjust as needed
-  >
-    <Form>
-      <Form.Item>
-        <TextArea
-          placeholder="Date will be shown once its Loaded..."
-          id="myTextArea"
-          rows={20}
-          value={fileContent}
-          readOnly
-          disabled
-        />
-      </Form.Item>
-    </Form>
-  </Modal>
-);
-
-const modalHmigrate = (
-  <Modal
-    visible={visibleHmigrate}
-    onCancel={() => setVisibleHmigrate(false)}
-    footer={null}
-    title="Hmigrate a dataset"
-  >
-    Tape action will happen in the background!! you can continue your work.
-    <div style={{ marginTop: '16px', textAlign: 'right' }}>
-      <Button type="primary" onClick={handleOnHmigrateButtonClick}>
-        OK
-      </Button>
-    </div>
-  </Modal>
-);
-
-const modalHrecall = (
-  <Modal
-    visible={visibleHrecall}
-    onCancel={() => setVisibleHrecall(false)}
-    footer={null}
-    title="Hrecall a dataset"
-  >
-    Tape action will happen in the background!! you can continue your work.
-    <div style={{ marginTop: '16px', textAlign: 'right' }}>
-      <Button type="primary" onClick={handleOnHrecallButtonClick}>
-        OK
-      </Button>
-    </div>
-  </Modal>
-);
-
-const modalHdelete = (
-  <Modal
-    visible={visibleHdelete}
-    onCancel={() => setVisibleHdelete(false)}
-    footer={null}
-    title="Hdelete a dataset"
-  >
-    Tape action will happen in the background!! you can continue your work.
-    <div style={{ marginTop: '16px', textAlign: 'right' }}>
-      <Button type="primary" onClick={handleOnHdeleteButtonClick}>
-        OK
-      </Button>
-    </div>
-  </Modal>
-);
-
-const modalSubmit = (
-  <Modal
-    visible={visibleSubmit}
-    onCancel={() => setVisibleSubmit(false)}
-    footer={[
-      <Button key="cancel" onClick={() => setVisibleSubmit(false)}>
-        Cancel
-      </Button>,
-      <Button key="ok" type="primary" onClick={handleOnSubmitButtonClick}>
-        OK
-      </Button>,
-    ]}
-    title="Submit a job"
-  >
-    Are you sure, a valid JCL present in this file?
-  </Modal>
-);
-
-const modalDelete = (
-  <Modal
-    visible={visibleDelete}
-    onCancel={() => setVisibleDelete(false)}
-    footer={[
-      <Button key="cancel" onClick={() => setVisibleDelete(false)}>
-        Cancel
-      </Button>,
-      <Button key="ok" type="primary" onClick={handleOnDeleteButtonClick}>
-        OK
-      </Button>,
-    ]}
-    title="Delete a dataset"
-  >
-    Are you sure to delete this dataset?
-  </Modal>
-);
-
-const modalRename = (
-  <Modal
-    visible={visibleRename}
-    onCancel={() => setVisibleRename(false)}
-    footer={[
-      <Button key="rename" type="primary" onClick={handleOnRenameButtonClick}>
-        Rename
-      </Button>,
-    ]}
-    title="Rename a dataset"
-  >
-    <Input
-      placeholder="Enter new name"
-      id="renameText"
-      value={fileName}
-      onChange={(e) => handleDataChangeRename(e)}
-    />
-  </Modal>
-);
+        .then((response) => {
+          //handle success
+          console.log(response);
+          console.log("ganesh is here");
+          handleOnLoading(false);
+          setVisibleCreate(false);
+          // loadFileSpaceData();
+          // setResponse(response);
+        })
+        .catch((err) => {
+          //handle error
+          console.log(err);
+          handleOnLoading(false);
+        });
+    }
