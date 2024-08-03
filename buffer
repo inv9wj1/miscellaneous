@@ -1,27 +1,160 @@
-import { Modal, Button, Input } from 'antd';
+import React, { useEffect, useState } from "react";
+import "./ResizableModal.css"; // Make sure to create this CSS file
+import axiosConnect from "../api/axiosConnect";
+import {
+  CButton,
+  CFormTextarea,
+  CModal,
+  CModalHeader,
+  CModalBody,
+  CModalTitle,
+  CModalFooter,
+} from "@coreui/react";
 
-const { TextArea } = Input;
+const ResizableModal = ({
+  modalId,
+  fileContent,
+  isVisible,
+  fileName,
+  setVisible,
+}) => {
+  const [isMinimized, setMinimized] = useState(true);
+  const [isMaximized, setMaximized] = useState(false);
+  const [actualVisible, setActualVisible] = useState(isVisible);
+  const [response, setResponse] = useState("");
+  const [visibleModalResponse, setVisibleModalResponse] = useState(false);
+  const [visibleModalFileEditor, setVisibleModalFileEditor] = useState(true);
+  const [actualFileContent, setActualFileContent] = useState(fileContent);
 
-const modalFileEditor = (
-  <Modal
-    title="File Editor"
-    visible={visible}
-    onCancel={() => setVisible(false)}
-    footer={[
-      <Button key="cancel" onClick={() => setVisible(false)}>
-        Cancel
-      </Button>,
-      <Button key="save" type="primary" onClick={handleOnSaveButtonClick}>
-        Save
-      </Button>
-    ]}
-  >
-    <TextArea
-      placeholder="Data will be shown once it's loaded..."
-      id="myTextArea"
-      rows={80}
-      value={fileContent}
-      onChange={(e) => handleDataChange(e)}
-    />
-  </Modal>
-);
+  useEffect(() => {
+    setActualVisible(isVisible);
+    setActualFileContent(fileContent);
+  }, [isVisible, fileContent]);
+
+  const handleMinimize = () => {
+    setMinimized(!isMinimized);
+    setMaximized(false); // Ensure the modal is not maximized when minimized
+  };
+
+  const handleMaximize = () => {
+    setMaximized(!isMaximized);
+    setMinimized(false); // Ensure the modal is not minimized when maximized
+  };
+
+  const handleClose = () => {
+    console.log("clicked handle close is", actualVisible);
+    setActualVisible(false);
+    setVisible(false);
+  };
+
+  const handleDataChange = (data) => {
+    console.log("Typed handleDataChange" + data.target.value);
+    setActualFileContent(data.target.value);
+  };
+  const handleOnSaveButtonClick = () => {
+    console.log("**** SAVING FILE : ", fileName);
+    console.log("**** FILE Content: ", actualFileContent);
+
+    axiosConnect
+      .post("/saveSingleFile", {
+        fileName: fileName,
+        fileContent: actualFileContent,
+      })
+      .then((response) => {
+        //handle success
+        console.log(response);
+        setVisibleModalResponse(true);
+        setResponse(response);
+      })
+      .catch((err) => {
+        //handle error
+        console.log(err);
+      });
+  };
+
+  const modalFileEditor = (
+    <CModal
+      fullscreen
+      visible={visibleModalFileEditor}
+      onClose={handleClose}
+      aria-labelledby="FullscreenExample2"
+    >
+      {/* <CModalHeader className="justify-content-between" >
+      <CModalTitle>File Editor</CModalTitle>
+      <CButton color="secondary" onClick={handleMinimize}>
+          -
+        </CButton>
+    </CModalHeader> */}
+      <CModalBody>
+        <CButton color="secondary" onClick={handleMinimize}>
+          Minimize
+        </CButton>
+        <CFormTextarea
+          placeholder="Date will be shown once it's loaded..."
+          id="myTextArea"
+          rows={80}
+          value={actualFileContent}
+          onChange={(e) => handleDataChange(e)}
+        />
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={handleOnSaveButtonClick}>
+          Save
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
+
+  const modalResponse = (
+    <CModal
+      visible={visibleModalResponse}
+      backdrop="static"
+      onClose={() => setVisibleModalResponse(false)}
+    >
+      <CModalHeader>
+        <CModalTitle>Alert!</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <p> data is saved.. </p>
+      </CModalBody>
+    </CModal>
+  );
+  return (
+    <>
+      {modalResponse}
+      {actualVisible && (
+        <div
+          className={`resizable-modal ${
+            isMinimized ? "minimized" + modalId : ""
+          } ${isMaximized ? "maximized" : ""}`}
+        >
+          <div className="modal-header">
+            <button onClick={handleMinimize}>{isMinimized ? "+" : "-"}</button>
+            <button onClick={handleMaximize}>
+              {isMaximized ? "ss" : "[]"}
+            </button>
+            <span title={fileName}> {fileName.slice(0, 16)} </span>
+            <button className="close-button" onClick={handleClose}>
+              X
+            </button>
+          </div>
+          {!isMinimized && (
+            <div
+              className={`modal-content ${
+                isMaximized ? "maximized-content" : ""
+              }`}
+            >
+              {/* Your modal content goes here */}
+              {/* <p> {modalId}</p>
+              <p> {fileContent}
+              </p> */}
+              {modalFileEditor}
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+};
+
+export default ResizableModal;
