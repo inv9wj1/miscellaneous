@@ -1,29 +1,27 @@
-axiosConnect
-      .get("/getFileData2", {
-        params: {
-          fileName: fileName,
-        },
-        {
-          headers: {
-            "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers":
-              "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
-            Authorization: `Bearer ${token}`, // Add the token here
-          }
-        }
-      })
-      .then((response) => {
-        //handle success
-        console.log(response.data);
-        setVisible(true);
-        console.log("modal count before " + modalCount);
-        setModalCount(modalCount + 1);
-        console.log("modal count is " + modalCount);
+import { Modal, Button, Input } from 'antd';
 
-        // setFileContent(JSON.stringify(response.data));
-        setFileContent(
-          typeof response.data != "string"
-            ? JSON.stringify(response.data)
-            : response.data
-        );
+const { TextArea } = Input;
+
+const modalFileEditor = (
+  <Modal
+    title="File Editor"
+    visible={visible}
+    onCancel={() => setVisible(false)}
+    footer={[
+      <Button key="cancel" onClick={() => setVisible(false)}>
+        Cancel
+      </Button>,
+      <Button key="save" type="primary" onClick={handleOnSaveButtonClick}>
+        Save
+      </Button>
+    ]}
+  >
+    <TextArea
+      placeholder="Data will be shown once it's loaded..."
+      id="myTextArea"
+      rows={80}
+      value={fileContent}
+      onChange={(e) => handleDataChange(e)}
+    />
+  </Modal>
+);
