@@ -1,17 +1,58 @@
-import { Modal, Spin } from 'antd';
+ const modalResponse = (
+    <CModal
+      size="lg"
+      visible={modalVisibleResponse}
+      onClose={() => setModalVisibleResponse(false)}
+    >
+      <CModalBody>
+        <div> Action Completed. Click below for more details...</div>
+      </CModalBody>
+      <CModalFooter>
+        <div className="mb-3 text-muted">
+          <CAccordion activeItemKey={2}>
+            <CAccordionItem itemKey={1}>
+              <CAccordionHeader>
+                Success msg
+                details:----------------------------------------------------------------------------------------
+              </CAccordionHeader>
+              <CAccordionBody>
+                <CFormTextarea
+                  placeholder="Date will be shown once its Loaded..."
+                  id="successMsg"
+                  label="Output from Mainframe"
+                  rows={20}
+                  value={JSON.stringify(successMsg)}
+                  disabled
+                  readOnly
+                ></CFormTextarea>
+              </CAccordionBody>
+            </CAccordionItem>
+          </CAccordion>
+        </div>
+      </CModalFooter>
+    </CModal>
+  );
 
-const modalLoading = (
-  <Modal
-    visible={modalVisibleLoading}
-    footer={null}
-    closable={false}
-    maskClosable={false}
-  >
-    <div style={{ textAlign: 'center' }}>
-      <Spin size="large" />
-      <div className="mb-3 text-muted" style={{ marginTop: 20 }}>
-        Please wait... Loading in progress..
-      </div>
-    </div>
-  </Modal>
-);
+
+
+
+
+
+ <CInputGroup className="mb-3">
+        <CFormInput
+          placeholder="Enter file directory to load"
+          aria-label="File space dir name"
+          aria-describedby="file-search"
+          defaultValue="SYSSHR.ZOOPS.*"
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        <CButton
+          type="button"
+          color="primary"
+          variant="outline"
+          id="button-addon1"
+          onClick={handleOnLoadButtonClick}
+        >
+          Load
+        </CButton>
+      </CInputGroup>
