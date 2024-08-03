@@ -1,23 +1,35 @@
- axiosConnect
-        .post("/createSingleFileUsingApi", {
-          createFileName: createFileName,
-          modelFileName: modelFileName,
-          inputValues: inputValues,
-          tabName: tabName,
-        })
+const token = Cookies.get("token"); // Assuming you are getting the token from cookies
 
-        .then((response) => {
-          //handle success
-          console.log(response);
-          console.log("ganesh is here");
-          handleOnLoading(false);
-          setVisibleCreate(false);
-          // loadFileSpaceData();
-          // setResponse(response);
-        })
-        .catch((err) => {
-          //handle error
-          console.log(err);
-          handleOnLoading(false);
-        });
+axiosConnect
+  .post(
+    "/createSingleFileUsingApi",
+    {
+      createFileName: createFileName,
+      modelFileName: modelFileName,
+      inputValues: inputValues,
+      tabName: tabName,
+    },
+    {
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers":
+          "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+        Authorization: `Bearer ${token}`, // Add the token here
+      },
     }
+  )
+  .then((response) => {
+    // handle success
+    console.log(response);
+    console.log("ganesh is here");
+    handleOnLoading(false);
+    setVisibleCreate(false);
+    // loadFileSpaceData();
+    // setResponse(response);
+  })
+  .catch((err) => {
+    // handle error
+    console.log(err);
+    handleOnLoading(false);
+  });
