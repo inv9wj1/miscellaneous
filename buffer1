@@ -1,107 +1,558 @@
-const modalHmigrate = (
-  <Modal
-    title="Hmigrate a dataset"
-    visible={visibleHmigrate}
-    onCancel={() => setVisibleHmigrate(false)}
-    footer={[
-      <Button key="ok" type="primary" onClick={handleOnHmigrateButtonClick}>
-        OK
-      </Button>,
-    ]}
-  >
-    Tape action will happen in the background!! You can continue your work.
-  </Modal>
-);
+const modalCreate = (
+    <CModal
+      size="xl"
+      visible={visibleCreate}
+      onClose={() => setVisibleCreate(false)}
+    >
+      <CModalHeader onClose={() => setVisibleCreate(false)}>
+        <CModalTitle>Create a dataset</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        {/* <Tabs defaultActiveKey="1" items={items} onChange={handleonOption} />            */}
+        {/* above is to alternative way of having tabs */}
+        <CFormInput
+          placeholder="Enter new name"
+          id="EnterNewName"
+          label="Enter New Name "
+          onChange={(e) => handleDataChangeForCreateDsn(e)}
+        ></CFormInput>
 
+        <Tabs size="large" onChange={handleOnTabOptions}>
+          <Tabs.TabPane tab="Model" key="model">
+            <div>
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="inputModelDatasetName"
+                  className="col-sm-3 col-form-label"
+                >
+                  Model Dataset Name
+                </CFormLabel>
+                <CCol sm={10}>
+                  <CFormInput
+                    type="text"
+                    id="inputModelDatasetName"
+                    onChange={(e) => handleDataChangeForModalDsn(e)}
+                  />
+                </CCol>
+              </CRow>
+            </div>
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Sequential" key="sequential">
+            <div>
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="alcunit"
+                  className="col-sm-3 col-form-label"
+                >
+                  alcunit
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="alcunit"
+                    name="alcunit"
+                    defaultValue="CYL"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="blksize"
+                  className="col-sm-3 col-form-label"
+                >
+                  blksize
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="blksize"
+                    name="blksize"
+                    defaultValue={6160}
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
-const modalHrecall = (
-  <Modal
-    title="Hrecall a dataset"
-    visible={visibleHrecall}
-    onCancel={() => setVisibleHrecall(false)}
-    footer={[
-      <Button key="ok" type="primary" onClick={handleOnHrecallButtonClick}>
-        OK
-      </Button>,
-    ]}
-  >
-    Tape action will happen in the background!! You can continue your work.
-  </Modal>
-);
+              <CRow className="mb-3">
+                <CFormLabel htmlFor="dsorg" className="col-sm-3 col-form-label">
+                  dsorg
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="dsorg"
+                    name="dsorg"
+                    defaultValue="PS"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
+              <CRow className="mb-3">
+                <CFormLabel htmlFor="lrecl" className="col-sm-3 col-form-label">
+                  lrecl
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="lrecl"
+                    name="lrecl"
+                    defaultValue={80}
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="primary"
+                  className="col-sm-3 col-form-label"
+                >
+                  primary
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="primary"
+                    name="primary"
+                    defaultValue="1"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
+              <CRow className="mb-3">
+                <CFormLabel htmlFor="recfm" className="col-sm-3 col-form-label">
+                  recfm
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="recfm"
+                    name="recfm"
+                    defaultValue={"FB"}
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
-const modalHdelete = (
-  <Modal
-    title="Hdelete a dataset"
-    visible={visibleHdelete}
-    onCancel={() => setVisibleHdelete(false)}
-    footer={[
-      <Button key="ok" type="primary" onClick={handleOnHdeleteButtonClick}>
-        OK
-      </Button>,
-    ]}
-  >
-    Tape action will happen in the background!! You can continue your work.
-  </Modal>
-);
+              <h3> Optional parameters </h3>
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="dirblk"
+                  className="col-sm-3 col-form-label"
+                >
+                  dirblk
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="dirblk"
+                    name="dirblk"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
-const modalSubmit = (
-  <Modal
-    title="Submit a job"
-    visible={visibleSubmit}
-    onCancel={() => setVisibleSubmit(false)}
-    footer={[
-      <Button key="ok" type="primary" onClick={handleOnSubmitButtonClick}>
-        OK
-      </Button>,
-      <Button key="cancel" onClick={() => setVisibleSubmit(false)}>
-        Cancel
-      </Button>,
-    ]}
-  >
-    Are you sure, a valid JCL present in this file?
-  </Modal>
-);
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="avgblk"
+                  className="col-sm-3 col-form-label"
+                >
+                  avgblk
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="avgblk"
+                    name="avgblk"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="dataclass"
+                  className="col-sm-3 col-form-label"
+                >
+                  dataclass
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="dataclass"
+                    name="dataclass"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
-const modalDelete = (
-  <Modal
-    title="Delete a dataset"
-    visible={visibleDelete}
-    onCancel={() => setVisibleDelete(false)}
-    footer={[
-      <Button key="ok" type="primary" onClick={handleOnDeleteButtonClick}>
-        OK
-      </Button>,
-      <Button key="cancel" onClick={() => setVisibleDelete(false)}>
-        Cancel
-      </Button>,
-    ]}
-  >
-    Are you sure to delete this dataset?
-  </Modal>
-);
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="dsntype"
+                  className="col-sm-3 col-form-label"
+                >
+                  dsntype
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="dsntype"
+                    name="dsntype"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="mgntclass"
+                  className="col-sm-3 col-form-label"
+                >
+                  mgntclass
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="mgntclass"
+                    name="mgntclass"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
 
-const modalRename = (
-  <Modal
-    title="Rename a dataset"
-    visible={visibleRename}
-    onCancel={() => setVisibleRename(false)}
-    footer={[
-      <Button key="rename" type="primary" onClick={handleOnRenameButtonClick}>
-        Rename
-      </Button>,
-    ]}
-  >
-    <Input
-      placeholder="Enter new name"
-      id="renameText"
-      value={fileName}
-      onChange={(e) => handleDataChangeRename(e)}
-    />
-  </Modal>
-);
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="secondary"
+                  className="col-sm-3 col-form-label"
+                >
+                  secondary
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="secondary"
+                    name="secondary"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="storclass"
+                  className="col-sm-3 col-form-label"
+                >
+                  storclass
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="storclass"
+                    name="storclass"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel htmlFor="unit" className="col-sm-3 col-form-label">
+                  unit
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="unit"
+                    name="unit"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="volser"
+                  className="col-sm-3 col-form-label"
+                >
+                  volser
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput
+                    type="text"
+                    id="volser"
+                    name="volser"
+                    onChange={(e) => {
+                      setInputValues({
+                        ...inputValues,
+                        [e.target.name]: e.target.value.trim(),
+                      });
+                    }}
+                  />
+                </CCol>
+              </CRow>
+            </div>
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Partitioned" key="partitioned">
+            <div>
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="alcunit"
+                  className="col-sm-3 col-form-label"
+                >
+                  alcunit
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="alcunit" defaultValue="CYL" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="blksize"
+                  className="col-sm-3 col-form-label"
+                >
+                  blksize
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="blksize" defaultValue={6160} />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="dirblk"
+                  className="col-sm-3 col-form-label"
+                >
+                  dirblk
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="dirblk" defaultValue="5" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel htmlFor="dsorg" className="col-sm-3 col-form-label">
+                  dsorg
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="dsorg" defaultValue="PO" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel htmlFor="lrecl" className="col-sm-3 col-form-label">
+                  lrecl
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="lrecl" defaultValue={80} />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="primary"
+                  className="col-sm-3 col-form-label"
+                >
+                  primary
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="primary" defaultValue="1" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel htmlFor="recfm" className="col-sm-3 col-form-label">
+                  recfm
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="recfm" defaultValue={"FB"} />
+                </CCol>
+              </CRow>
+
+              <h3> Optional parameters </h3>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="avgblk"
+                  className="col-sm-3 col-form-label"
+                >
+                  avgblk
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="avgblk" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="dataclass"
+                  className="col-sm-3 col-form-label"
+                >
+                  dataclass
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="dataclass" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="dsntype"
+                  className="col-sm-3 col-form-label"
+                >
+                  dsntype
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="dsntype" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="mgntclass"
+                  className="col-sm-3 col-form-label"
+                >
+                  mgntclass
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="mgntclass" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="secondary"
+                  className="col-sm-3 col-form-label"
+                >
+                  secondary
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="secondary" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="storclass"
+                  className="col-sm-3 col-form-label"
+                >
+                  storclass
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="storclass" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel htmlFor="unit" className="col-sm-3 col-form-label">
+                  unit
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="unit" />
+                </CCol>
+              </CRow>
+
+              <CRow className="mb-3">
+                <CFormLabel
+                  htmlFor="volser"
+                  className="col-sm-3 col-form-label"
+                >
+                  volser
+                </CFormLabel>
+                <CCol lg="5">
+                  <CFormInput type="text" id="volser" />
+                </CCol>
+              </CRow>
+            </div>
+          </Tabs.TabPane>
+        </Tabs>
+        {/* {<Segmented options={['mqPage', 'mqBuff', 'mqPerf', 'Quarterly', 'Yearly']} 
+          onChange = {handleonOption}/> } */}
+        {/* <form>
+              {fieldArray}
+              
+              <CButton color='secondary' onClick={() => setModalVisible(false)}>Cancel</CButton>
+              <CButton color='info' onClick={handleonClick}>Avail Service</CButton>
+             
+          </form> */}
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={handleOnCreateButtonClick}>
+          Create
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
