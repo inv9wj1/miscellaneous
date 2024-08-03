@@ -1,12 +1,127 @@
-import { Modal } from 'antd';
+const modalHmigrate = (
+    <CModal
+      scrollable
+      visible={visibleHmigrate}
+      onClose={() => setVisibleHmigrate(false)}
+    >
+      <CModalHeader onClose={() => setVisibleHmigrate(false)}>
+        <CModalTitle>Hmigrate a dataset</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        Tape action will happen in the background!! you can continue your work.
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={handleOnHmigrateButtonClick}>
+          ok
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
 
-const modalResponse = (
-  <Modal
-    title="Alert!"
-    visible={visibleModalResponse}
-    onCancel={() => setVisibleModalResponse(false)}
-    footer={null}
-  >
-    <p>Data is saved..</p>
-  </Modal>
-);
+  const modalHrecall = (
+    <CModal
+      scrollable
+      visible={visibleHrecall}
+      onClose={() => setVisibleHrecall(false)}
+    >
+      <CModalHeader onClose={() => setVisibleHrecall(false)}>
+        <CModalTitle>Hrecall a dataset</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        Tape action will happen in the background!! you can continue your work.
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={handleOnHrecallButtonClick}>
+          ok
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
+
+  const modalHdelete = (
+    <CModal
+      scrollable
+      visible={visibleHdelete}
+      onClose={() => setVisibleHdelete(false)}
+    >
+      <CModalHeader onClose={() => setVisibleHdelete(false)}>
+        <CModalTitle>Hdelete a dataset</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        Tape action will happen in the background!! you can continue your work.
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={handleOnHdeleteButtonClick}>
+          ok
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
+
+  const modalSubmit = (
+    <CModal
+      scrollable
+      visible={visibleSubmit}
+      onClose={() => setVisibleSubmit(false)}
+    >
+      <CModalHeader onClose={() => setVisibleSubmit(false)}>
+        <CModalTitle>Submit a job</CModalTitle>
+      </CModalHeader>
+      <CModalBody>Are you sure, a valid JCL present in this file?</CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={handleOnSubmitButtonClick}>
+          ok
+        </CButton>
+        <CButton color="secondary" onClick={() => setVisibleSubmit(false)}>
+          cancel
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
+
+  const modalDelete = (
+    <CModal
+      scrollable
+      visible={visibleDelete}
+      onClose={() => setVisibleDelete(false)}
+    >
+      <CModalHeader onClose={() => setVisibleDelete(false)}>
+        <CModalTitle>Delete a dataset</CModalTitle>
+      </CModalHeader>
+      <CModalBody>Are you sure to delete this dataset?</CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={handleOnDeleteButtonClick}>
+          ok
+        </CButton>
+        <CButton color="secondary" onClick={() => setVisibleDelete(false)}>
+          cancel
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
+
+  const modalRename = (
+    <CModal
+      scrollable
+      visible={visibleRename}
+      onClose={() => setVisibleRename(false)}
+    >
+      <CModalHeader onClose={() => setVisibleRename(false)}>
+        <CModalTitle>Rename a dataset</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <CFormInput
+          placeholder="Enter new name"
+          id="renameText"
+          label="Enter New Name "
+          value={fileName}
+          onChange={(e) => handleDataChangeRename(e)}
+        ></CFormInput>
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={handleOnRenameButtonClick}>
+          Rename
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  );
