@@ -1,160 +1,624 @@
-import React, { useEffect, useState } from "react";
-import "./ResizableModal.css"; // Make sure to create this CSS file
-import axiosConnect from "../api/axiosConnect";
-import {
-  CButton,
-  CFormTextarea,
-  CModal,
-  CModalHeader,
-  CModalBody,
-  CModalTitle,
-  CModalFooter,
-} from "@coreui/react";
+import { Modal, Form, Input, Button, Row, Tabs, Col, Typography } from 'antd';
 
-const ResizableModal = ({
-  modalId,
-  fileContent,
-  isVisible,
-  fileName,
-  setVisible,
-}) => {
-  const [isMinimized, setMinimized] = useState(true);
-  const [isMaximized, setMaximized] = useState(false);
-  const [actualVisible, setActualVisible] = useState(isVisible);
-  const [response, setResponse] = useState("");
-  const [visibleModalResponse, setVisibleModalResponse] = useState(false);
-  const [visibleModalFileEditor, setVisibleModalFileEditor] = useState(true);
-  const [actualFileContent, setActualFileContent] = useState(fileContent);
+ 
 
-  useEffect(() => {
-    setActualVisible(isVisible);
-    setActualFileContent(fileContent);
-  }, [isVisible, fileContent]);
 
-  const handleMinimize = () => {
-    setMinimized(!isMinimized);
-    setMaximized(false); // Ensure the modal is not maximized when minimized
-  };
 
-  const handleMaximize = () => {
-    setMaximized(!isMaximized);
-    setMinimized(false); // Ensure the modal is not minimized when maximized
-  };
+const { Title } = Typography;
 
-  const handleClose = () => {
-    console.log("clicked handle close is", actualVisible);
-    setActualVisible(false);
-    setVisible(false);
-  };
+const { TabPane } = Tabs;
+const { TextArea } = Input;
 
-  const handleDataChange = (data) => {
-    console.log("Typed handleDataChange" + data.target.value);
-    setActualFileContent(data.target.value);
-  };
-  const handleOnSaveButtonClick = () => {
-    console.log("**** SAVING FILE : ", fileName);
-    console.log("**** FILE Content: ", actualFileContent);
-
-    axiosConnect
-      .post("/saveSingleFile", {
-        fileName: fileName,
-        fileContent: actualFileContent,
-      })
-      .then((response) => {
-        //handle success
-        console.log(response);
-        setVisibleModalResponse(true);
-        setResponse(response);
-      })
-      .catch((err) => {
-        //handle error
-        console.log(err);
-      });
-  };
-
-  const modalFileEditor = (
-    <CModal
-      fullscreen
-      visible={visibleModalFileEditor}
-      onClose={handleClose}
-      aria-labelledby="FullscreenExample2"
-    >
-      {/* <CModalHeader className="justify-content-between" >
-      <CModalTitle>File Editor</CModalTitle>
-      <CButton color="secondary" onClick={handleMinimize}>
-          -
-        </CButton>
-    </CModalHeader> */}
-      <CModalBody>
-        <CButton color="secondary" onClick={handleMinimize}>
-          Minimize
-        </CButton>
-        <CFormTextarea
-          placeholder="Date will be shown once it's loaded..."
-          id="myTextArea"
-          rows={80}
-          value={actualFileContent}
-          onChange={(e) => handleDataChange(e)}
+const modalCreate = (
+  <Modal
+    title="Create a dataset"
+    visible={visibleCreate}
+    onCancel={() => setVisibleCreate(false)}
+    width={1200}
+    footer={[
+      <Button key="create" type="primary" onClick={handleOnCreateButtonClick}>
+        Create
+      </Button>,
+    ]}
+  >
+    <Form layout="vertical">
+      <Form.Item
+        label="Enter New Name"
+        name="newName"
+      >
+        <Input
+          placeholder="Enter new name"
+          id="EnterNewName"
+          onChange={(e) => handleDataChangeForCreateDsn(e)}
         />
-      </CModalBody>
-      <CModalFooter>
-        <CButton color="secondary" onClick={handleOnSaveButtonClick}>
-          Save
-        </CButton>
-      </CModalFooter>
-    </CModal>
-  );
+      </Form.Item>
 
-  const modalResponse = (
-    <CModal
-      visible={visibleModalResponse}
-      backdrop="static"
-      onClose={() => setVisibleModalResponse(false)}
-    >
-      <CModalHeader>
-        <CModalTitle>Alert!</CModalTitle>
-      </CModalHeader>
-      <CModalBody>
-        <p> data is saved.. </p>
-      </CModalBody>
-    </CModal>
-  );
-  return (
-    <>
-      {modalResponse}
-      {actualVisible && (
-        <div
-          className={`resizable-modal ${
-            isMinimized ? "minimized" + modalId : ""
-          } ${isMaximized ? "maximized" : ""}`}
-        >
-          <div className="modal-header">
-            <button onClick={handleMinimize}>{isMinimized ? "+" : "-"}</button>
-            <button onClick={handleMaximize}>
-              {isMaximized ? "ss" : "[]"}
-            </button>
-            <span title={fileName}> {fileName.slice(0, 16)} </span>
-            <button className="close-button" onClick={handleClose}>
-              X
-            </button>
-          </div>
-          {!isMinimized && (
-            <div
-              className={`modal-content ${
-                isMaximized ? "maximized-content" : ""
-              }`}
-            >
-              {/* Your modal content goes here */}
-              {/* <p> {modalId}</p>
-              <p> {fileContent}
-              </p> */}
-              {modalFileEditor}
-            </div>
-          )}
-        </div>
-      )}
-    </>
-  );
-};
+      <Tabs defaultActiveKey="1" size="large" onChange={handleOnTabOptions}>
+        <TabPane tab="Model" key="model">
+    <Form layout="horizontal">
+      <Form.Item
+        label="Model Dataset Name"
+        name="modelDatasetName"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="inputModelDatasetName"
+          onChange={(e) => handleDataChangeForModalDsn(e)}
+        />
+      </Form.Item>
+    </Form>
+  </TabPane>
+        
 
-export default ResizableModal;
+  <TabPane tab="Sequential" key="sequential">
+    <Form layout="horizontal">
+      <Form.Item
+        label="alcunit"
+        name="alcunit"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="CYL"
+      >
+        <Input
+          id="alcunit"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="blksize"
+        name="blksize"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue={6160}
+      >
+        <Input
+          id="blksize"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="dsorg"
+        name="dsorg"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="PS"
+      >
+        <Input
+          id="dsorg"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="lrecl"
+        name="lrecl"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue={80}
+      >
+        <Input
+          id="lrecl"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="primary"
+        name="primary"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="1"
+      >
+        <Input
+          id="primary"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="recfm"
+        name="recfm"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="FB"
+      >
+        <Input
+          id="recfm"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Title level={3}>Optional parameters</Title>
+
+      <Form.Item
+        label="dirblk"
+        name="dirblk"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="dirblk"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="avgblk"
+        name="avgblk"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="avgblk"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="dataclass"
+        name="dataclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="dataclass"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="dsntype"
+        name="dsntype"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="dsntype"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="mgntclass"
+        name="mgntclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="mgntclass"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="secondary"
+        name="secondary"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="secondary"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="storclass"
+        name="storclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="storclass"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="unit"
+        name="unit"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="unit"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="volser"
+        name="volser"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input
+          id="volser"
+          onChange={(e) => {
+            setInputValues({
+              ...inputValues,
+              [e.target.name]: e.target.value.trim(),
+            });
+          }}
+        />
+      </Form.Item>
+    </Form>
+  </TabPane>
+ 
+  <TabPane tab="Partitioned" key="partitioned">
+    <Form layout="horizontal">
+      <Form.Item
+        label="alcunit"
+        name="alcunit"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="CYL"
+      >
+        <Input id="alcunit" />
+      </Form.Item>
+
+      <Form.Item
+        label="blksize"
+        name="blksize"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue={6160}
+      >
+        <Input id="blksize" />
+      </Form.Item>
+
+      <Form.Item
+        label="dirblk"
+        name="dirblk"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="5"
+      >
+        <Input id="dirblk" />
+      </Form.Item>
+
+      <Form.Item
+        label="dsorg"
+        name="dsorg"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="PO"
+      >
+        <Input id="dsorg" />
+      </Form.Item>
+
+      <Form.Item
+        label="lrecl"
+        name="lrecl"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue={80}
+      >
+        <Input id="lrecl" />
+      </Form.Item>
+
+      <Form.Item
+        label="primary"
+        name="primary"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="1"
+      >
+        <Input id="primary" />
+      </Form.Item>
+
+      <Form.Item
+        label="recfm"
+        name="recfm"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="FB"
+      >
+        <Input id="recfm" />
+      </Form.Item>
+
+      <Title level={3}>Optional parameters</Title>
+
+      <Form.Item
+        label="avgblk"
+        name="avgblk"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="avgblk" />
+      </Form.Item>
+
+      <Form.Item
+        label="dataclass"
+        name="dataclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="dataclass" />
+      </Form.Item>
+
+      <Form.Item
+        label="dsntype"
+        name="dsntype"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="dsntype" />
+      </Form.Item>
+
+      <Form.Item
+        label="mgntclass"
+        name="mgntclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="mgntclass" />
+      </Form.Item>
+
+      <Form.Item
+        label="secondary"
+        name="secondary"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="secondary" />
+      </Form.Item>
+
+      <Form.Item
+        label="storclass"
+        name="storclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="storclass" />
+      </Form.Item>
+
+      <Form.Item
+        label="unit"
+        name="unit"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="unit" />
+      </Form.Item>
+
+      <Form.Item
+        label="volser"
+        name="volser"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="volser" />
+      </Form.Item>
+    </Form>
+  </TabPane>
+  
+  <TabPane tab="Partitioned" key="partitioned">
+    <Form layout="horizontal">
+      <Form.Item
+        label="alcunit"
+        name="alcunit"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="CYL"
+      >
+        <Input id="alcunit" />
+      </Form.Item>
+
+      <Form.Item
+        label="blksize"
+        name="blksize"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue={6160}
+      >
+        <Input id="blksize" />
+      </Form.Item>
+
+      <Form.Item
+        label="dirblk"
+        name="dirblk"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="5"
+      >
+        <Input id="dirblk" />
+      </Form.Item>
+
+      <Form.Item
+        label="dsorg"
+        name="dsorg"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="PO"
+      >
+        <Input id="dsorg" />
+      </Form.Item>
+
+      <Form.Item
+        label="lrecl"
+        name="lrecl"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue={80}
+      >
+        <Input id="lrecl" />
+      </Form.Item>
+
+      <Form.Item
+        label="primary"
+        name="primary"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="1"
+      >
+        <Input id="primary" />
+      </Form.Item>
+
+      <Form.Item
+        label="recfm"
+        name="recfm"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+        initialValue="FB"
+      >
+        <Input id="recfm" />
+      </Form.Item>
+
+      <Title level={3}>Optional parameters</Title>
+
+      <Form.Item
+        label="avgblk"
+        name="avgblk"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="avgblk" />
+      </Form.Item>
+
+      <Form.Item
+        label="dataclass"
+        name="dataclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="dataclass" />
+      </Form.Item>
+
+      <Form.Item
+        label="dsntype"
+        name="dsntype"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="dsntype" />
+      </Form.Item>
+
+      <Form.Item
+        label="mgntclass"
+        name="mgntclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="mgntclass" />
+      </Form.Item>
+
+      <Form.Item
+        label="secondary"
+        name="secondary"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="secondary" />
+      </Form.Item>
+
+      <Form.Item
+        label="storclass"
+        name="storclass"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="storclass" />
+      </Form.Item>
+
+      <Form.Item
+        label="unit"
+        name="unit"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="unit" />
+      </Form.Item>
+
+      <Form.Item
+        label="volser"
+        name="volser"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
+      >
+        <Input id="volser" />
+      </Form.Item>
+    </Form>
+  </TabPane>
+ 
+
+
+        {/* Add more TabPanes as needed */}
+      </Tabs>
+    </Form>
+  </Modal>
+);
+
