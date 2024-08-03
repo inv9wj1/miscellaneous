@@ -1,35 +1,117 @@
-const token = Cookies.get("token"); // Assuming you are getting the token from cookies
+router.post("/createSingleFileUsingApi", async (req, res) => {
+  console.log("filename is ", req.body.createFileName);
+  console.log("model name is ", req.body.modelFileName);
 
-axiosConnect
-  .post(
-    "/createSingleFileUsingApi",
-    {
-      createFileName: createFileName,
-      modelFileName: modelFileName,
-      inputValues: inputValues,
-      tabName: tabName,
-    },
-    {
-      headers: {
-        "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers":
-          "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-        Authorization: `Bearer ${token}`, // Add the token here
-      },
+  console.log(req.body.inputValues);
+  console.log("tab name is ", req.body.tabName);
+
+  var obj = req.body.inputValues;
+
+  var newObj = {};
+  for (var key in obj) {
+    if (/^\d+$/.test(obj[key])) {
+      //test for number Or use /[-+]?[0-9]*\.?[0-9]+/ for all kind of real numbers
+      newObj[key] = +obj[key];
+    } else {
+      newObj[key] = obj[key];
     }
-  )
-  .then((response) => {
-    // handle success
-    console.log(response);
-    console.log("ganesh is here");
-    handleOnLoading(false);
-    setVisibleCreate(false);
-    // loadFileSpaceData();
-    // setResponse(response);
-  })
-  .catch((err) => {
-    // handle error
-    console.log(err);
-    handleOnLoading(false);
-  });
+  }
+  console.log(JSON.stringify(newObj));
+
+  // const inputValues = JSON.stringify(req.body.inputValues);
+  const createType = req.body.tabName;
+  if (createType === "sequential") {
+    try {
+      //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+      const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+      const sessCfgWithCreds =
+        await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+          sessCfg,
+          profile
+        );
+      const session = new ProfileInfo.Session(sessCfgWithCreds);
+
+      const dataset = req.body.createFileName;
+
+      const dataSetType = CreateDataSetTypeEnum.DATA_SET_SEQUENTIAL;
+
+      var options = newObj;
+
+      const response = await Create.dataSet(
+        session,
+        dataSetType,
+        dataset,
+        options
+      );
+
+      console.log(response);
+      res.status(200).json(response);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  } else if (createType === "partitioned") {
+    try {
+      //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+      const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+      const sessCfgWithCreds =
+        await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+          sessCfg,
+          profile
+        );
+      const session = new ProfileInfo.Session(sessCfgWithCreds);
+
+      const dataset = req.body.createFileName;
+
+      const dataSetType = CreateDataSetTypeEnum.DATA_SET_PARTITIONED;
+
+      var options = newObj;
+
+      const response = await Create.dataSet(
+        session,
+        dataSetType,
+        dataset,
+        options
+      );
+
+      console.log(response);
+      res.status(200).json(response);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  }
+  if (createType === "model") {
+    try {
+      //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+      const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+      const sessCfgWithCreds =
+        await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+          sessCfg,
+          profile
+        );
+      const session = new ProfileInfo.Session(sessCfgWithCreds);
+
+      const dataset = req.body.createFileName;
+      const likeDataSetName = req.body.modelFileName;
+
+      var options = {
+        // primary: 10,
+        // secondary: 2,
+        // alcunit: "CYLS",
+        // lrecl: 80,
+      };
+      const response = await Create.dataSetLike(
+        session,
+        dataset,
+        likeDataSetName
+      );
+
+      console.log(response);
+      res.status(200).json(response);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
+    }
+  }
+});
