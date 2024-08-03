@@ -1,28 +1,12 @@
-import { Modal, Button, Input } from 'antd';
-import { useState } from 'react';
+import { Modal } from 'antd';
 
-const modalFileEditor = (
+const modalResponse = (
   <Modal
-    title="File Editor"
-    visible={visibleModalFileEditor}
-    onCancel={handleClose}
-    footer={[
-      <Button key="save" type="primary" onClick={handleOnSaveButtonClick}>
-        Save
-      </Button>,
-    ]}
-    width="100%"
-    style={{ top: 0 }}
+    title="Alert!"
+    visible={visibleModalResponse}
+    onCancel={() => setVisibleModalResponse(false)}
+    footer={null}
   >
-    <Button type="secondary" onClick={handleMinimize}>
-      Minimize
-    </Button>
-    <Input.TextArea
-      placeholder="Data will be shown once it's loaded..."
-      id="myTextArea"
-      rows={80}
-      value={actualFileContent}
-      onChange={(e) => handleDataChange(e)}
-    />
+    <p>Data is saved..</p>
   </Modal>
 );
