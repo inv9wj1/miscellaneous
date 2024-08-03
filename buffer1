@@ -1,41 +1,186 @@
-router.post("/renameSingleFile", async (req, res) => {
-  const authHeader = req.headers["authorization"];
-  console.log("auth header is ", authHeader);
-  const token = authHeader && authHeader.split(" ")[1];
-  console.log("token value is ", token);
-
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+router.post("/submitSingleFileWithArg", async (req, res) => {
+  console.log("Inside MF router post /postsojobs");
+  console.log(req.body.jclString);
 
   try {
-    const session = await createSession(token);
-    console.log(session);
-
-    console.log("fileName: ", req.body.fileName);
-    console.log("fileNameOld: ", req.body.fileNameOld);
-    console.log("isMember: ", req.body.isMember);
-    console.log("folder: ", req.body.folderName);
-
-    let command = `ex 'SYSSHR.ZOOPS.CLIST(SOOPS)' 'SOJOB'`;
-    
-    if (req.body.isMember) {
-      console.log("performing rename dataset member");
-      let response = await Rename.dataSetMember(
-        session,
-        req.body.folderName,
-        req.body.fileNameOld,
-        req.body.fileName
+    //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
       );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+    const jcl = req.body.jclString;
+    // const dataset = "SYSSHR.ZOOPS.JCL(TEST)"
+    const internalReaderRecfm = "v";
+    const internalReaderLrecl = "281";
+    let response = await SubmitJobs.submitJcl(
+      session,
+      jcl,
+      internalReaderRecfm,
+      internalReaderLrecl
+    );
+    console.log(
+      "This is the response from single submit file with arg",
+      response
+    );
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+router.post("/submitSingleFile", async (req, res) => {
+  console.log("Inside MF router post /postsojobs");
+  console.log(req.body.fileName);
+
+  try {
+    //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+
+    // const dataset = "SYSSHR.ZOOPS.JCL(TEST)"
+
+    let response = await SubmitJobs.submitJobNotify(session, req.body.fileName);
+    console.log(response);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+router.post("/deleteSingleFile", async (req, res) => {
+  console.log("Inside MF router post /postsojobs");
+  console.log("req.body: ", req.body);
+
+  console.log("fileName: ", req.body.fileName);
+  console.log("fileNameOld: ", req.body.fileNameOld);
+  console.log("isMember: ", req.body.isMember);
+  console.log("folder: ", req.body.folderName);
+
+  try {
+    //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+
+    let response = await Delete.dataSet(session, req.body.fileName);
+    console.log(response);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
+router.post("/submitSingleFileWithArgAndReturnTheStatus", async (req, res) => {
+  console.log("Inside MF router post /postsojobs");
+  console.log(req.body.jclString);
+
+  try {
+    //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+    const jcl = req.body.jclString;
+    // const dataset = "SYSSHR.ZOOPS.JCL(TEST)"
+    const internalReaderRecfm = "v";
+    const internalReaderLrecl = "281";
+    let response = await SubmitJobs.submitJclNotify(
+      session,
+      jcl,
+      internalReaderRecfm,
+      internalReaderLrecl
+    );
+    console.log(
+      "This is the response from single submit file with arg",
+      response
+    );
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
+router.post("/deleteSingleFile", async (req, res) => {
+  console.log("Inside MF router post /postsojobs");
+  console.log("req.body: ", req.body);
+
+  console.log("fileName: ", req.body.fileName);
+  console.log("fileNameOld: ", req.body.fileNameOld);
+  console.log("isMember: ", req.body.isMember);
+  console.log("folder: ", req.body.folderName);
+
+  try {
+    //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+
+    let response = await Delete.dataSet(session, req.body.fileName);
+    console.log(response);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
+router.post("/hTapeActions", async (req, res) => {
+  console.log("Inside MF router post /postsojobs");
+  console.log("req.body: ", req.body);
+
+  console.log("fileName: ", req.body.fileName);
+  console.log("actionItem: ", req.body.actionItem);
+  console.log("isMember: ", req.body.isMember);
+  console.log("folder: ", req.body.folderName);
+
+  try {
+    //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+
+    if (req.body.actionItem == "hMigrate") {
+      let response = await HMigrate.dataSet(session, req.body.fileName);
       console.log(response);
       res.status(200).json(response);
-    } else {
-      console.log("performing rename dataset");
-      let response = await Rename.dataSet(
-        session,
-        req.body.fileNameOld,
-        req.body.fileName
-      );
+    }
+    if (req.body.actionItem == "hRecall") {
+      let response = await HRecall.dataSet(session, req.body.fileName);
+      console.log(response);
+      res.status(200).json(response);
+    }
+    if (req.body.actionItem == "hDelete") {
+      let response = await HDelete.dataSet(session, req.body.fileName);
       console.log(response);
       res.status(200).json(response);
     }
@@ -44,3 +189,48 @@ router.post("/renameSingleFile", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+router.post("/infoSingleFile", async (req, res) => {
+  //   console.log("req.body: ", req.body);
+
+  console.log("info FileName: ", req.body.fileName);
+  // console.log("fileNameOld: ", req.body.fileNameOld);
+  // console.log("isMember: ", req.body.isMember);
+  // console.log("folder: ", req.body.folderName);
+  // console.log("folder: ", req.body.inputValues);
+
+  let command =
+    `ex 'SYSSHR.ZOOPS.CLIST(FILEACT)' 'INFO ` + req.body.fileName + `'`;
+  console.log("cmd is ", command);
+  // let command = `ex 'SYSSHR.ZOOPS.CEXEC(CFILESPC)' '`+req.body.fileDir+`'`;
+  try {
+    //const session = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfg = zowe.ZosmfSession.createSessCfgFromArgs(profile);
+    const sessCfgWithCreds =
+      await ProfileInfo.ConnectionPropsForSessCfg.addPropsOrPrompt(
+        sessCfg,
+        profile
+      );
+    const session = new ProfileInfo.Session(sessCfgWithCreds);
+
+    let response = await IssueTso.issueTsoCommand(
+      session,
+      userTSO,
+      command,
+      paramsTSO
+    );
+    console.log(response);
+    res.status(201).send(response.commandResponse.toString());
+    // IssueTso.issueTsoCommand(session, userTSO, command, paramsTSO).then((val) => {
+    //     res.status(201).send(val.toString());
+    //     console.log("Response from aishwarya",val.toString())},(reason) => {
+    //       res.status(201).json({message: 'Invalid or No response from Mainframe :'+reason});
+    //       console.log("PRINTING REASON",reason);
+    //     })
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
