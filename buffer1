@@ -1,27 +1,28 @@
-const token = Cookies.get("token"); // Get the token from the cookie
-axiosConnect
-  .post(
-    "/saveSingleFile",
-    {
-      fileName: fileName,
-      fileContent: actualFileContent,
-    },
-    {
-      headers: {
-        "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
-        Authorization: `Bearer ${token}`, // Add the token here
-      },
-    }
-  )
-  .then((response) => {
-    // handle success
-    console.log(response);
-    setVisibleModalResponse(true);
-    setResponse(response);
-  })
-  .catch((err) => {
-    // handle error
-    console.log(err);
-  });
+import { Modal, Button, Input } from 'antd';
+import { useState } from 'react';
+
+const modalFileEditor = (
+  <Modal
+    title="File Editor"
+    visible={visibleModalFileEditor}
+    onCancel={handleClose}
+    footer={[
+      <Button key="save" type="primary" onClick={handleOnSaveButtonClick}>
+        Save
+      </Button>,
+    ]}
+    width="100%"
+    style={{ top: 0 }}
+  >
+    <Button type="secondary" onClick={handleMinimize}>
+      Minimize
+    </Button>
+    <Input.TextArea
+      placeholder="Data will be shown once it's loaded..."
+      id="myTextArea"
+      rows={80}
+      value={actualFileContent}
+      onChange={(e) => handleDataChange(e)}
+    />
+  </Modal>
+);
