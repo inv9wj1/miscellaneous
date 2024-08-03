@@ -1,26 +1,30 @@
-axiosConnect
-            .get("/getFileData2", {
-              params: {
-                fileName: "SYSSHR.ZOOPS.FILES(GBSJSON)",
-              },
-              headers: {
-                "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
-                "Access-Control-Allow-Methods":
-                  "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers":
-                  "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
-              },
-            })
-            .then((response) => {
-              console.log(response);
-              console.log(
-                "Data received from getFileSpaceData: " + response.data
-              );
-              const jsonObject1 = response.data.replace(/\s/g, "");
-              const jsonObject = JSON.parse(jsonObject1);
-              console.log(jsonObject);
-              setJsonData(jsonObject);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+router.get("/getFileData2", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  console.log("auth header is ", authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log("token value is ", token);
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const session = await createSession(token);
+    console.log(session);
+    const options = { failFast: false };
+    await Get.dataSet(session, req.query.fileName).then(
+      (val) => {
+        res.status(200).send(val.toString());
+        console.log("Response from Mainframe", val.toString());
+      },
+      (reason) => {
+        res.status(500).json({
+          message: "Invalid or No response from Mainframe: " + reason,
+        });
+        console.log("PRINTING REASON", reason);
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
