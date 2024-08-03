@@ -1,22 +1,17 @@
-const modalLoading = (
-    <CModal
-      visible={modalVisibleLoading}
-      backdrop="static"
-      onClose={() => setModalVisibleLoading(false)}
-    >
-     
-      <CModalBody>
-        <div className="spinner-border" role="status">
-          {" "}
-          <span className="visually-hidden">Loading...</span>
-        </div>
+import { Modal, Spin } from 'antd';
 
-      
-      </CModalBody>
-      <CModalFooter>
-        <div className="mb-3 text-muted">
-          Please wait... Loading in progress..
-        </div>
-      </CModalFooter>
-    </CModal>
-  );
+const modalLoading = (
+  <Modal
+    visible={modalVisibleLoading}
+    footer={null}
+    closable={false}
+    maskClosable={false}
+  >
+    <div style={{ textAlign: 'center' }}>
+      <Spin size="large" />
+      <div className="mb-3 text-muted" style={{ marginTop: 20 }}>
+        Please wait... Loading in progress..
+      </div>
+    </div>
+  </Modal>
+);
