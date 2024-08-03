@@ -1,8 +1,9 @@
-router.get("/getFileData2", async (req, res) => {
+router.post("/submitSingleFileWithArg", async (req, res) => {
   const authHeader = req.headers["authorization"];
   console.log("auth header is ", authHeader);
   const token = authHeader && authHeader.split(" ")[1];
   console.log("token value is ", token);
+
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
   }
@@ -10,21 +11,223 @@ router.get("/getFileData2", async (req, res) => {
   try {
     const session = await createSession(token);
     console.log(session);
-    const options = { failFast: false };
-    await Get.dataSet(session, req.query.fileName).then(
-      (val) => {
-        res.status(200).send(val.toString());
-        console.log("Response from Mainframe", val.toString());
-      },
-      (reason) => {
-        res.status(500).json({
-          message: "Invalid or No response from Mainframe: " + reason,
-        });
-        console.log("PRINTING REASON", reason);
-      }
+
+    console.log(req.body.jclString);
+
+    const jcl = req.body.jclString;
+    const internalReaderRecfm = "v";
+    const internalReaderLrecl = "281";
+
+    let response = await SubmitJobs.submitJcl(
+      session,
+      jcl,
+      internalReaderRecfm,
+      internalReaderLrecl
     );
+    
+    console.log("This is the response from single submit file with arg", response);
+    res.status(200).json(response);
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
   }
 });
+
+
+router.post("/submitSingleFile", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  console.log("auth header is ", authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log("token value is ", token);
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const session = await createSession(token);
+    console.log(session);
+
+    console.log(req.body.fileName);
+
+    let response = await SubmitJobs.submitJobNotify(session, req.body.fileName);
+    console.log(response);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
+router.post("/deleteSingleFile", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  console.log("auth header is ", authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log("token value is ", token);
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const session = await createSession(token);
+    console.log(session);
+
+    console.log("req.body: ", req.body);
+    console.log("fileName: ", req.body.fileName);
+    console.log("fileNameOld: ", req.body.fileNameOld);
+    console.log("isMember: ", req.body.isMember);
+    console.log("folder: ", req.body.folderName);
+
+    let response = await Delete.dataSet(session, req.body.fileName);
+    console.log(response);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
+router.post("/submitSingleFileWithArgAndReturnTheStatus", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  console.log("auth header is ", authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log("token value is ", token);
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const session = await createSession(token);
+    console.log(session);
+
+    console.log(req.body.jclString);
+
+    const jcl = req.body.jclString;
+    const internalReaderRecfm = "v";
+    const internalReaderLrecl = "281";
+
+    let response = await SubmitJobs.submitJclNotify(
+      session,
+      jcl,
+      internalReaderRecfm,
+      internalReaderLrecl
+    );
+    
+    console.log("This is the response from single submit file with arg", response);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
+router.post("/deleteSingleFile", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  console.log("auth header is ", authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log("token value is ", token);
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const session = await createSession(token);
+    console.log(session);
+
+    console.log("req.body: ", req.body);
+    console.log("fileName: ", req.body.fileName);
+    console.log("fileNameOld: ", req.body.fileNameOld);
+    console.log("isMember: ", req.body.isMember);
+    console.log("folder: ", req.body.folderName);
+
+    let response = await Delete.dataSet(session, req.body.fileName);
+    console.log(response);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
+router.post("/hTapeActions", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  console.log("auth header is ", authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log("token value is ", token);
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const session = await createSession(token);
+    console.log(session);
+
+    console.log("req.body: ", req.body);
+    console.log("fileName: ", req.body.fileName);
+    console.log("actionItem: ", req.body.actionItem);
+    console.log("isMember: ", req.body.isMember);
+    console.log("folder: ", req.body.folderName);
+
+    let response;
+    if (req.body.actionItem === "hMigrate") {
+      response = await HMigrate.dataSet(session, req.body.fileName);
+    } else if (req.body.actionItem === "hRecall") {
+      response = await HRecall.dataSet(session, req.body.fileName);
+    } else if (req.body.actionItem === "hDelete") {
+      response = await HDelete.dataSet(session, req.body.fileName);
+    } else {
+      return res.status(400).json({ message: "Invalid actionItem" });
+    }
+
+    console.log(response);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
+router.post("/infoSingleFile", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  console.log("auth header is ", authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log("token value is ", token);
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const session = await createSession(token);
+    console.log(session);
+
+    console.log("info FileName: ", req.body.fileName);
+
+    let command =
+      `ex 'SYSSHR.ZOOPS.CLIST(FILEACT)' 'INFO ` + req.body.fileName + `'`;
+    console.log("cmd is ", command);
+
+    let response = await IssueTso.issueTsoCommand(
+      session,
+      userTSO,
+      command,
+      paramsTSO
+    );
+    console.log(response);
+    res.status(201).send(response.commandResponse.toString());
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+
