@@ -1,49 +1,49 @@
-<div className="title">
-                    Fund Train 
-                    <Button type="primary" onClick={showModal}>
-                      Login
-                    </Button>
-                    <Modal
-                      title="Login to Mainframe"
-                      visible={visible}
-                      onOk={handleOk}
-                      onCancel={handleCancel}
-                      maskClosable={true}
-                    >
-                      <Input
-                        placeholder="User Name"
-                        name="MF_USER_ZOS"
-                        value={formData.MF_USER_ZOS}
-                        onChange={handleChange}
-                      />
-                      <p> </p>
-                      <Input
-                        placeholder="Password"
-                        name="MF_PASSWORD"
-                        value={formData.MF_PASSWORD}
-                        onChange={handleChange}
-                      />
-                      <p>Select the system</p>
-                      <Select
-                        placeholder="Select MF_HOST"
-                        name="Select the system"
-                        value={formData.MF_HOST}
-                        onChange={handleHostChange}
-                        style={{ width: "100%", marginBottom: "16px" }}
-                      >
-                        <Option value="sysa">TPLA</Option>
-                        <Option value="sysb">xxxx</Option>
-                        <Option value="sysc">yyyy</Option>
-                        <Option value="sysd">zzzz</Option>
-                        <Option value="syse">aaaa</Option>
-                      </Select>
-                    </Modal>
-                    <Modal
-                      title="Response"
-                      visible={responseModalVisible}
-                      onOk={handleResponseModalOk}
-                      onCancel={handleResponseModalCancel}
-                    >
-                      <p>{response}</p>
-                    </Modal>
-                  </div>
+<div className="title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  <Button type="primary" onClick={showModal}>
+    Login
+  </Button>
+  <span>Fund Train</span>
+  <Modal
+    title="Login to Mainframe"
+    visible={visible}
+    onOk={handleOk}
+    onCancel={handleCancel}
+    maskClosable={true}
+  >
+    <Input
+      placeholder="User Name"
+      name="MF_USER_ZOS"
+      value={formData.MF_USER_ZOS}
+      onChange={handleChange}
+    />
+    <p> </p>
+    <Input
+      placeholder="Password"
+      name="MF_PASSWORD"
+      value={formData.MF_PASSWORD}
+      onChange={handleChange}
+    />
+    <p>Select the system</p>
+    <Select
+      placeholder="Select MF_HOST"
+      name="Select the system"
+      value={formData.MF_HOST}
+      onChange={handleHostChange}
+      style={{ width: "100%", marginBottom: "16px" }}
+    >
+      <Option value="sysa">TPLA</Option>
+      <Option value="sysb">xxxx</Option>
+      <Option value="sysc">yyyy</Option>
+      <Option value="sysd">zzzz</Option>
+      <Option value="syse">aaaa</Option>
+    </Select>
+  </Modal>
+  <Modal
+    title="Response"
+    visible={responseModalVisible}
+    onOk={handleResponseModalOk}
+    onCancel={handleResponseModalCancel}
+  >
+    <p>{response}</p>
+  </Modal>
+</div>
