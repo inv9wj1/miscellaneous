@@ -1,149 +1,135 @@
 axiosConnect
-      .get("/getFileData2", {
-        params: {
-          fileName: fileName,
-        },
-        headers: {
-          "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers":
-            "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
-          Authorization: `Bearer ${token}`, // Add the token here
-        },
-      })
-      .then((response) => {
-        //handle success
-        console.log(response.data);
-        setVisible(true);
-        console.log("modal count before " + modalCount);
-        setModalCount(modalCount + 1);
-        console.log("modal count is " + modalCount);
+  .get("/getFileData2", {
+    params: {
+      fileName: fileName,
+    },
+    headers: {
+      "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+      Authorization: `Bearer ${token}`, // Add the token here
+    },
+  })
+  .then((response) => {
+    //handle success
+    console.log(response.data);
+    setVisible(true);
 
-        // setFileContent(JSON.stringify(response.data));
-        setFileContent(
-          typeof response.data != "string"
-            ? JSON.stringify(response.data)
-            : response.data
-        );
+    // Increment modalCount first
+    setModalCount((prevCount) => {
+      const newCount = prevCount + 1;
+      console.log("modal count is " + newCount);
 
-        if (modalCount > 4) {
-          if (!visible1) {
-            setFileContent1(
-              typeof response.data != "string"
-                ? JSON.stringify(response.data)
-                : response.data
-            );
-            setVisible1(true);
-            setFileName1(fileName);
-            console.log("filename is", fileName);
-            console.log("entered recucle modal1");
-          }
-          if (!visible2) {
-            setFileContent2(
-              typeof response.data != "string"
-                ? JSON.stringify(response.data)
-                : response.data
-            );
-            setVisible2(true);
-            setFileName2(fileName);
-            console.log("filename is", fileName);
-            console.log("entered recucle modal2");
-          }
-          if (!visible3) {
-            setFileContent3(
-              typeof response.data != "string"
-                ? JSON.stringify(response.data)
-                : response.data
-            );
-            setVisible3(true);
-            setFileName3(fileName);
-            console.log("filename is", fileName);
-            console.log("filecontent 3 entered");
-          }
-          if (!visible4) {
-            setFileContent4(
-              typeof response.data != "string"
-                ? JSON.stringify(response.data)
-                : response.data
-            );
-            setVisible4(true);
-            setFileName4(fileName);
-            console.log("filename is", fileName);
-            console.log("filecontent 4 entered");
-          }
-          if (!visible5) {
-            setFileContent5(
-              typeof response.data != "string"
-                ? JSON.stringify(response.data)
-                : response.data
-            );
-            setVisible5(true);
-            setFileName5(fileName);
-            console.log("filename is", fileName);
-            console.log("filecontent 5 entered");
-          }
+      // Set the file content for the current modal
+      setFileContent(
+        typeof response.data !== "string"
+          ? JSON.stringify(response.data)
+          : response.data
+      );
 
-          setModalCount(modalCount--);
-        }
-        if (modalCount == 0) {
+      // Handle minimizing the modal and assigning content to tabs
+      if (newCount > 4) {
+        if (!visible1) {
           setFileContent1(
-            typeof response.data != "string"
+            typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
           setVisible1(true);
           setFileName1(fileName);
-          console.log("filename is", fileName);
-          console.log("filecontent 1 entered");
-        }
-        if (modalCount == 1) {
+        } else if (!visible2) {
           setFileContent2(
-            typeof response.data != "string"
+            typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
           setVisible2(true);
           setFileName2(fileName);
-          console.log("filecontent 2 entered");
-        }
-        if (modalCount == 2) {
+        } else if (!visible3) {
           setFileContent3(
-            typeof response.data != "string"
+            typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
-          console.log("filecontent 3 entered");
           setVisible3(true);
           setFileName3(fileName);
-        }
-        if (modalCount == 3) {
+        } else if (!visible4) {
           setFileContent4(
-            typeof response.data != "string"
+            typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
-          console.log("filecontent 4 entered");
           setVisible4(true);
           setFileName4(fileName);
-        }
-        if (modalCount == 4) {
+        } else if (!visible5) {
           setFileContent5(
-            typeof response.data != "string"
+            typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
-          console.log("filecontent 5 entered");
           setVisible5(true);
           setFileName5(fileName);
         }
 
-        // if modalcount == 1 then setFileContent1(response.data);
-        // if modalcount == 2 then setFileContent2(response.data);
-        // setResponse(response);
-      })
-      .catch((err) => {
-        //handle error
-        console.log(err);
-      });
-
-    
+        // Decrement modal count after assigning content
+        return prevCount - 1;
+      } else {
+        // Handle initial modals based on the count
+        switch (newCount) {
+          case 0:
+            setFileContent1(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible1(true);
+            setFileName1(fileName);
+            break;
+          case 1:
+            setFileContent2(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible2(true);
+            setFileName2(fileName);
+            break;
+          case 2:
+            setFileContent3(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible3(true);
+            setFileName3(fileName);
+            break;
+          case 3:
+            setFileContent4(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible4(true);
+            setFileName4(fileName);
+            break;
+          case 4:
+            setFileContent5(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible5(true);
+            setFileName5(fileName);
+            break;
+          default:
+            break;
+        }
+        return newCount;
+      }
+    });
+  })
+  .catch((err) => {
+    //handle error
+    console.log(err);
+  });
