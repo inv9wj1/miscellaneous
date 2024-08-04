@@ -48,35 +48,30 @@ axiosConnect
               ? JSON.stringify(response.data)
               : response.data
           );
-          setVisible1(true);
         } else if (fileName2 === fileName) {
           setFileContent2(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
-          setVisible2(true);
         } else if (fileName3 === fileName) {
           setFileContent3(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
-          setVisible3(true);
         } else if (fileName4 === fileName) {
           setFileContent4(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
-          setVisible4(true);
         } else if (fileName5 === fileName) {
           setFileContent5(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
-          setVisible5(true);
         } else {
           // Assign content to the first available minimized modal
           if (!visible1) {
@@ -166,4 +161,20 @@ axiosConnect
           case 4:
             setFileContent5(
               typeof response.data !== "string"
-    
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible5(true);
+            setFileName5(fileName);
+            break;
+          default:
+            break;
+        }
+        return newCount;
+      }
+    });
+  })
+  .catch((err) => {
+    // Handle error
+    console.log(err);
+  });
