@@ -1,25 +1,77 @@
-const modalFileEditor = (
-    <Modal
-      title="File Editor"
-      visible={visible}
-      onCancel={() => setVisible(false)}
-      footer={[
-        <Button key="cancel" onClick={() => setVisible(false)}>
-          Cancel
-        </Button>,
-        <Button key="save" type="primary" onClick={handleOnSaveButtonClick}>
-          Save
-        </Button>,
-      ]}
-      width="100%"
-      style={{ top: 0 }}
-    >
-      <TextArea
-        placeholder="Dataset is empty..."
-        id="myTextArea"
-        rows={80}
-        value={fileContent}
-        onChange={(e) => handleDataChange(e)}
-      />
-    </Modal>
-  );
+<div style={{ height: "15%", border: "2px solid #fc6500" }}>
+          <div className="mdc-layout-grid__inner">
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+              {/* <Header /> */}
+              <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+                <div id="u842" className="ax_default image">
+                  <img
+                    id="u842_img"
+                    className="img"
+                    src={require("./assets/images/fiservlogo.png")}
+                    alt="fiserv logo"
+                  />
+                  <div id="u877" className="ax_default line">
+                    <img
+                      id="u877_img"
+                      className="img"
+                      src={require("./assets/images/line.png")}
+                      alt="line"
+                    />
+                  </div>
+                  <div className="title">
+                    <Button type="primary" onClick={showModal}>
+                      Login
+                    </Button>
+                    <Modal
+                      title="Login to Mainframe"
+                      visible={visible}
+                      onOk={handleOk}
+                      onCancel={handleCancel}
+                      maskClosable={true}
+                    >
+                      <Input
+                        placeholder="User Name"
+                        name="MF_USER_ZOS"
+                        value={formData.MF_USER_ZOS}
+                        onChange={handleChange}
+                      />
+                      <p> </p>
+                      <Input
+                        placeholder="Password"
+                        name="MF_PASSWORD"
+                        value={formData.MF_PASSWORD}
+                        onChange={handleChange}
+                      />
+                      <p>Select the system</p>
+                      <Select
+                        placeholder="Select MF_HOST"
+                        name="Select the system"
+                        value={formData.MF_HOST}
+                        onChange={handleHostChange}
+                        style={{ width: "100%", marginBottom: "16px" }}
+                      >
+                        <Option value="sysa">TPLA</Option>
+                        <Option value="sysb">xxxx</Option>
+                        <Option value="sysc">yyyy</Option>
+                        <Option value="sysd">zzzz</Option>
+                        <Option value="syse">aaaa</Option>
+                      </Select>
+                    </Modal>
+                    <Modal
+                      title="Response"
+                      visible={responseModalVisible}
+                      onOk={handleResponseModalOk}
+                      onCancel={handleResponseModalCancel}
+                    >
+                      <p>{response}</p>
+                    </Modal>
+                    Fund Train
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br />
+          <br />
+        </div>
+        
