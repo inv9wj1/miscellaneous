@@ -30,14 +30,7 @@ axiosConnect
 
       // Handle minimizing the modal and assigning content to tabs
       if (newCount >= 5) {
-        if (fileName0 === fileName) {
-          setFileContent0(
-            typeof response.data !== "string"
-              ? JSON.stringify(response.data)
-              : response.data
-          );
-          setVisible0(true);
-        } else if (fileName1 === fileName) {
+        if (fileName1 === fileName) {
           setFileContent1(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
@@ -65,17 +58,16 @@ axiosConnect
               : response.data
           );
           setVisible4(true);
+        } else if (fileName5 === fileName) {
+          setFileContent5(
+            typeof response.data !== "string"
+              ? JSON.stringify(response.data)
+              : response.data
+          );
+          setVisible5(true);
         } else {
           // Assign content to the first available minimized modal
-          if (!visible0) {
-            setFileContent0(
-              typeof response.data !== "string"
-                ? JSON.stringify(response.data)
-                : response.data
-            );
-            setVisible0(true);
-            setFileName0(fileName);
-          } else if (!visible1) {
+          if (!visible1) {
             setFileContent1(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -107,23 +99,23 @@ axiosConnect
             );
             setVisible4(true);
             setFileName4(fileName);
-          }
-          // Decrement modal count after assigning content
-          return prevCount - 1;
-        }
-      } else {
-        // Handle initial modals based on the count
-        switch (newCount) {
-          case 0:
-            setFileContent0(
+          } else if (!visible5) {
+            setFileContent5(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
                 : response.data
             );
-            setVisible0(true);
-            setFileName0(fileName);
-            break;
-          case 1:
+            setVisible5(true);
+            setFileName5(fileName);
+          }
+        }
+
+        // Decrement modal count after assigning content
+        return prevCount - 1;
+      } else {
+        // Handle initial modals based on the count
+        switch (newCount) {
+          case 0:
             setFileContent1(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -132,7 +124,7 @@ axiosConnect
             setVisible1(true);
             setFileName1(fileName);
             break;
-          case 2:
+          case 1:
             setFileContent2(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -141,7 +133,7 @@ axiosConnect
             setVisible2(true);
             setFileName2(fileName);
             break;
-          case 3:
+          case 2:
             setFileContent3(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -150,7 +142,7 @@ axiosConnect
             setVisible3(true);
             setFileName3(fileName);
             break;
-          case 4:
+          case 3:
             setFileContent4(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -158,6 +150,15 @@ axiosConnect
             );
             setVisible4(true);
             setFileName4(fileName);
+            break;
+          case 4:
+            setFileContent5(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible5(true);
+            setFileName5(fileName);
             break;
           default:
             break;
