@@ -1,12 +1,12 @@
- // Open the corresponding modal if the fileName matches
+ // Alert if the fileName matches
     if (fileName === fileName1) {
-      setVisible1(true);
+      alert(`File "${fileName}" is already open in modal 1`);
     } else if (fileName === fileName2) {
-      setVisible2(true);
+      alert(`File "${fileName}" is already open in modal 2`);
     } else if (fileName === fileName3) {
-      setVisible3(true);
+      alert(`File "${fileName}" is already open in modal 3`);
     } else if (fileName === fileName4) {
-      setVisible4(true);
+      alert(`File "${fileName}" is already open in modal 4`);
     } else if (fileName === fileName5) {
-      setVisible5(true);
+      alert(`File "${fileName}" is already open in modal 5`);
     }
