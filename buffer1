@@ -1,21 +1,25 @@
-
-   const processFileContent = (fileContent) => {
-  // Step 1: Remove quotes at the beginning and the end
-  if (fileContent.startsWith('"') && fileContent.endsWith('"')) {
-    fileContent = fileContent.slice(1, -1);
-  }
-
-  // Step 2: Replace occurrences of /n with actual newlines
-  fileContent = fileContent.replace(/\/n/g, '\n');
-
-  return fileContent;
-};
-
-// Example usage:
-const rawFileContent = '"This is line one/nThis is line two/nThis is line three"';
-const processedFileContent = processFileContent(rawFileContent);
-
-console.log(processedFileContent);
-
-// Now set the actual file content
-setActualFileContent(processedFileContent);
+const modalFileEditor = (
+    <Modal
+      title="File Editor"
+      visible={visible}
+      onCancel={() => setVisible(false)}
+      footer={[
+        <Button key="cancel" onClick={() => setVisible(false)}>
+          Cancel
+        </Button>,
+        <Button key="save" type="primary" onClick={handleOnSaveButtonClick}>
+          Save
+        </Button>,
+      ]}
+      width="100%"
+      style={{ top: 0 }}
+    >
+      <TextArea
+        placeholder="Dataset is empty..."
+        id="myTextArea"
+        rows={80}
+        value={fileContent}
+        onChange={(e) => handleDataChange(e)}
+      />
+    </Modal>
+  );
