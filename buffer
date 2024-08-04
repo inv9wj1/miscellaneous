@@ -12,7 +12,7 @@ axiosConnect
     },
   })
   .then((response) => {
-    //handle success
+    // Handle success
     console.log(response.data);
     setVisible(true);
 
@@ -29,55 +29,101 @@ axiosConnect
       );
 
       // Handle minimizing the modal and assigning content to tabs
-      if (newCount > 4) {
-        if (!visible1) {
+      if (newCount >= 5) {
+        if (fileName0 === fileName) {
+          setFileContent0(
+            typeof response.data !== "string"
+              ? JSON.stringify(response.data)
+              : response.data
+          );
+          setVisible0(true);
+        } else if (fileName1 === fileName) {
           setFileContent1(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
           setVisible1(true);
-          setFileName1(fileName);
-        } else if (!visible2) {
+        } else if (fileName2 === fileName) {
           setFileContent2(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
           setVisible2(true);
-          setFileName2(fileName);
-        } else if (!visible3) {
+        } else if (fileName3 === fileName) {
           setFileContent3(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
           setVisible3(true);
-          setFileName3(fileName);
-        } else if (!visible4) {
+        } else if (fileName4 === fileName) {
           setFileContent4(
             typeof response.data !== "string"
               ? JSON.stringify(response.data)
               : response.data
           );
           setVisible4(true);
-          setFileName4(fileName);
-        } else if (!visible5) {
-          setFileContent5(
-            typeof response.data !== "string"
-              ? JSON.stringify(response.data)
-              : response.data
-          );
-          setVisible5(true);
-          setFileName5(fileName);
+        } else {
+          // Assign content to the first available minimized modal
+          if (!visible0) {
+            setFileContent0(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible0(true);
+            setFileName0(fileName);
+          } else if (!visible1) {
+            setFileContent1(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible1(true);
+            setFileName1(fileName);
+          } else if (!visible2) {
+            setFileContent2(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible2(true);
+            setFileName2(fileName);
+          } else if (!visible3) {
+            setFileContent3(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible3(true);
+            setFileName3(fileName);
+          } else if (!visible4) {
+            setFileContent4(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible4(true);
+            setFileName4(fileName);
+          }
+          // Decrement modal count after assigning content
+          return prevCount - 1;
         }
-
-        // Decrement modal count after assigning content
-        return prevCount - 1;
       } else {
         // Handle initial modals based on the count
         switch (newCount) {
           case 0:
+            setFileContent0(
+              typeof response.data !== "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible0(true);
+            setFileName0(fileName);
+            break;
+          case 1:
             setFileContent1(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -86,7 +132,7 @@ axiosConnect
             setVisible1(true);
             setFileName1(fileName);
             break;
-          case 1:
+          case 2:
             setFileContent2(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -95,7 +141,7 @@ axiosConnect
             setVisible2(true);
             setFileName2(fileName);
             break;
-          case 2:
+          case 3:
             setFileContent3(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -104,7 +150,7 @@ axiosConnect
             setVisible3(true);
             setFileName3(fileName);
             break;
-          case 3:
+          case 4:
             setFileContent4(
               typeof response.data !== "string"
                 ? JSON.stringify(response.data)
@@ -112,15 +158,6 @@ axiosConnect
             );
             setVisible4(true);
             setFileName4(fileName);
-            break;
-          case 4:
-            setFileContent5(
-              typeof response.data !== "string"
-                ? JSON.stringify(response.data)
-                : response.data
-            );
-            setVisible5(true);
-            setFileName5(fileName);
             break;
           default:
             break;
@@ -130,6 +167,6 @@ axiosConnect
     });
   })
   .catch((err) => {
-    //handle error
+    // Handle error
     console.log(err);
   });
