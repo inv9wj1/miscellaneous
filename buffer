@@ -1,33 +1,149 @@
-const modalFileEditor = (
-  <Modal
-    title={
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-        <span>File Editor</span>
-        <div style={{ marginRight: '32px' }}>
-          <Button key="save" type="primary" onClick={handleOnSaveButtonClick} style={{ marginRight: 8 }}>
-            Save
-          </Button>
-          <Button key="cancel" onClick={handleClose}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    }
-    visible={visibleModalFileEditor}
-    onCancel={handleClose}
-    footer={null}
-    width="100%"
-    style={{ top: 0 }}
-  >
-    <Button type="primary" onClick={handleMinimize}>
-      Minimize
-    </Button>
-    <Input.TextArea
-      placeholder="Data will be shown once it's loaded..."
-      id="myTextArea"
-      rows={80}
-      value={actualFileContent}
-      onChange={(e) => handleDataChange(e)}
-    />
-  </Modal>
-);
+axiosConnect
+      .get("/getFileData2", {
+        params: {
+          fileName: fileName,
+        },
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Replace * with your allowed origins
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Origin, X-Requested-With, Content-Type, Accept, Authorization", // Add more headers if needed
+          Authorization: `Bearer ${token}`, // Add the token here
+        },
+      })
+      .then((response) => {
+        //handle success
+        console.log(response.data);
+        setVisible(true);
+        console.log("modal count before " + modalCount);
+        setModalCount(modalCount + 1);
+        console.log("modal count is " + modalCount);
+
+        // setFileContent(JSON.stringify(response.data));
+        setFileContent(
+          typeof response.data != "string"
+            ? JSON.stringify(response.data)
+            : response.data
+        );
+
+        if (modalCount > 4) {
+          if (!visible1) {
+            setFileContent1(
+              typeof response.data != "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible1(true);
+            setFileName1(fileName);
+            console.log("filename is", fileName);
+            console.log("entered recucle modal1");
+          }
+          if (!visible2) {
+            setFileContent2(
+              typeof response.data != "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible2(true);
+            setFileName2(fileName);
+            console.log("filename is", fileName);
+            console.log("entered recucle modal2");
+          }
+          if (!visible3) {
+            setFileContent3(
+              typeof response.data != "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible3(true);
+            setFileName3(fileName);
+            console.log("filename is", fileName);
+            console.log("filecontent 3 entered");
+          }
+          if (!visible4) {
+            setFileContent4(
+              typeof response.data != "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible4(true);
+            setFileName4(fileName);
+            console.log("filename is", fileName);
+            console.log("filecontent 4 entered");
+          }
+          if (!visible5) {
+            setFileContent5(
+              typeof response.data != "string"
+                ? JSON.stringify(response.data)
+                : response.data
+            );
+            setVisible5(true);
+            setFileName5(fileName);
+            console.log("filename is", fileName);
+            console.log("filecontent 5 entered");
+          }
+
+          setModalCount(modalCount--);
+        }
+        if (modalCount == 0) {
+          setFileContent1(
+            typeof response.data != "string"
+              ? JSON.stringify(response.data)
+              : response.data
+          );
+          setVisible1(true);
+          setFileName1(fileName);
+          console.log("filename is", fileName);
+          console.log("filecontent 1 entered");
+        }
+        if (modalCount == 1) {
+          setFileContent2(
+            typeof response.data != "string"
+              ? JSON.stringify(response.data)
+              : response.data
+          );
+          setVisible2(true);
+          setFileName2(fileName);
+          console.log("filecontent 2 entered");
+        }
+        if (modalCount == 2) {
+          setFileContent3(
+            typeof response.data != "string"
+              ? JSON.stringify(response.data)
+              : response.data
+          );
+          console.log("filecontent 3 entered");
+          setVisible3(true);
+          setFileName3(fileName);
+        }
+        if (modalCount == 3) {
+          setFileContent4(
+            typeof response.data != "string"
+              ? JSON.stringify(response.data)
+              : response.data
+          );
+          console.log("filecontent 4 entered");
+          setVisible4(true);
+          setFileName4(fileName);
+        }
+        if (modalCount == 4) {
+          setFileContent5(
+            typeof response.data != "string"
+              ? JSON.stringify(response.data)
+              : response.data
+          );
+          console.log("filecontent 5 entered");
+          setVisible5(true);
+          setFileName5(fileName);
+        }
+
+        // if modalcount == 1 then setFileContent1(response.data);
+        // if modalcount == 2 then setFileContent2(response.data);
+        // setResponse(response);
+      })
+      .catch((err) => {
+        //handle error
+        console.log(err);
+      });
+
+    
