@@ -1,37 +1,25 @@
-import { Modal, Input, Button } from 'antd';
-import React from 'react';
-
-const { TextArea } = Input;
-
 const modalFileEditor = (
-  <Modal
-    title={
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-        <span>File Editor</span>
-        <div style={{ marginRight: '32px' }}>
-          <Button key="save" type="primary" onClick={handleOnSaveButtonClick} style={{ marginRight: 8 }}>
-            Save
-          </Button>
-          <Button key="cancel" onClick={() => setVisible(false)}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    }
-    visible={visible}
-    onCancel={() => setVisible(false)}
-    footer={null}
-    width="100%"
-    style={{ top: 0 }}
-  >
-    <TextArea
-      placeholder="Dataset is empty..."
-      id="myTextArea"
-      rows={80}
-      value={fileContent}
-      onChange={(e) => handleDataChange(e)}
-    />
-  </Modal>
-);
-
-export default modalFileEditor;
+    <Modal
+      title="File Editor"
+      visible={visibleModalFileEditor}
+      onCancel={handleClose}
+      footer={[
+        <Button key="save" type="primary" onClick={handleOnSaveButtonClick}>
+          Save
+        </Button>,
+      ]}
+      width="100%"
+      style={{ top: 0 }}
+    >
+      <Button type="primary" onClick={handleMinimize}>
+        Minimize
+      </Button>
+      <Input.TextArea
+        placeholder="Data will be shown once it's loaded..."
+        id="myTextArea"
+        rows={80}
+        value={actualFileContent}
+        onChange={(e) => handleDataChange(e)}
+      />
+    </Modal>
+  );
