@@ -1,30 +1,82 @@
 const showModal = () => {
-    setVisible(true);
-  };
-  console.log("status of token for stage 2 ", isTokenPresent);
-  const handleOk = async () => {
-    setVisible(false);
-    try {
-      const response = await axiosConnect.post(
-        "/login",
-        formData, // Send formData in the body
-        {
-          withCredentials: true,
-        }
-      );
-      console.log("status of token for stage 3 ", isTokenPresent);
-      console.log("res is ", response.data);
-      const myResponse = JSON.stringify(response.data);
-      setResponse(myResponse);
-      setResponseModalVisible(true);
-      setIsTokenPresent(true);
-      console.log("status of token for stage 5 ", isTokenPresent);
-      // Extract the token and save it in a cookie
-      const token = response.data.token;
-      if (token) {
-        Cookies.set("token", token, { expires: 1 }); // The token will expire in 1 day
+  setVisible(true);
+};
+
+const handleOk = async () => {
+  setVisible(false);
+  try {
+    const response = await axiosConnect.post(
+      "/login",
+      formData, // Send formData in the body
+      {
+        withCredentials: true,
       }
-    } catch (error) {
-      console.error(error);
+    );
+    console.log("status of token for stage 3 ", isTokenPresent);
+    console.log("res is ", response.data);
+    const myResponse = JSON.stringify(response.data);
+    setResponse(myResponse);
+    setResponseModalVisible(true);
+    setIsTokenPresent(true);
+    console.log("status of token for stage 5 ", isTokenPresent);
+    // Extract the token and save it in a cookie
+    const token = response.data.token;
+    if (token) {
+      Cookies.set("token", token, { expires: 1 }); // The token will expire in 1 day
     }
-  };
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// Your component or modal render function
+const LoginModal = () => {
+  const [visible, setVisible] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [response, setResponse] = useState('');
+  const [responseModalVisible, setResponseModalVisible] = useState(false);
+  const [isTokenPresent, setIsTokenPresent] = useState(false);
+
+  return (
+    <Modal
+      title="Login"
+      visible={visible}
+      onOk={handleOk}
+      onCancel={() => setVisible(false)}
+      footer={null}
+      style={{ fontFamily: 'Labora, sans-serif' }} // Apply custom font to modal
+    >
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <img
+          src="./assets/Labora-regular.otf" // Update to your actual logo path
+          alt="Logo"
+          style={{
+            height: '80px',
+            marginRight: '20px',
+          }}
+        />
+        <div style={{ flex: 1 }}>
+          <Input
+            placeholder="Username"
+            style={{ marginBottom: '10px', fontFamily: 'Labora, sans-serif' }} // Apply custom font
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+          />
+          <Input.Password
+            placeholder="Password"
+            style={{ marginBottom: '10px', fontFamily: 'Labora, sans-serif' }} // Apply custom font
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          />
+          <Button
+            type="primary"
+            onClick={handleOk}
+            style={{ fontFamily: 'Labora, sans-serif' }} // Apply custom font
+          >
+            Login
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
+export default LoginModal;
