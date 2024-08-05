@@ -1,3 +1,13 @@
+@font-face {
+  font-family: 'Labora';
+  src: url('./assets/Labora-regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+import './fonts.css'; // Adjust the path as necessary
+
+
 return (
   <>
     <div
@@ -35,6 +45,7 @@ return (
             border: "none", // Remove default border
             borderRadius: "4px", // Optional: add border-radius for rounded corners
             padding: "0 16px", // Optional: adjust padding
+            fontFamily: 'Labora, sans-serif', // Apply custom font
           }}
         >
           Login
