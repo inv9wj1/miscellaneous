@@ -6,57 +6,31 @@ return (
         height: "100%",
         left: "-5px",
         border: "2px solid #fc6500",
+        display: "flex",
+        flexDirection: "column",
       }}
       className="mdc-layout-grid"
     >
-      <div style={{ height: "15%", border: "2px solid #fc6500" }}>
-        <div className="mdc-layout-grid__inner">
-          <div className="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
-            {/* <Header /> */}
-            <div className="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
-              <div id="u842" className="ax_default image">
-                <img
-                  id="u842_img"
-                  className="img"
-                  src={require("./assets/images/fiservlogo.png")}
-                  alt="fiserv logo"
-                />
-                <div id="u877" className="ax_default line">
-                  <img
-                    id="u877_img"
-                    className="img"
-                    src={require("./assets/images/line.png")}
-                    alt="line"
-                  />
-                </div>
-
-                <div
-                  className="title"
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-start", // Align items to the left
-                    alignItems: "center", // Center items vertically
-                    gap: "10px", // Optional: Add space between button and logo
-                  }}
-                >
-                  <Button type="primary" onClick={showModal}>
-                    Login
-                  </Button>
-                  <img
-                    src={logo}
-                    alt="fund train logo"
-                    style={{ height: "84px" }}
-                  />
-                  {modalLogin}
-                  {modalResponse}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <br />
-        <br />
-      </div>
+      <header
+        style={{
+          height: "15%",
+          backgroundColor: "#000", // Trendy black color
+          color: "#fff", // White text color
+          display: "flex",
+          alignItems: "center",
+          padding: "0 20px", // Add some padding for better spacing
+          borderBottom: "2px solid #fc6500", // Border at the bottom
+        }}
+      >
+        <img
+          src={logo}
+          alt="fund train logo"
+          style={{ height: "84px", marginRight: "auto" }} // Push logo to the left
+        />
+        <Button type="primary" onClick={showModal}>
+          Login
+        </Button>
+      </header>
 
       <div style={{ height: "85%", border: "2px solid #fc6500" }}>
         <FileSpace />
