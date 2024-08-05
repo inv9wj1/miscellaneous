@@ -26,7 +26,17 @@ return (
           alt="fund train logo"
           style={{ height: "84px", marginRight: "auto" }} // Push logo to the left
         />
-        <Button type="primary" onClick={showModal}>
+        <Button
+          type="default" // Use 'default' to remove default Ant Design button styles
+          onClick={showModal}
+          style={{
+            backgroundColor: "#fff", // White background
+            color: "#000", // Black text color
+            border: "none", // Remove default border
+            borderRadius: "4px", // Optional: add border-radius for rounded corners
+            padding: "0 16px", // Optional: adjust padding
+          }}
+        >
           Login
         </Button>
       </header>
