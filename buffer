@@ -1,6 +1,3 @@
-useEffect(() => {
-    const token = Cookies.get('token');
-    if (token) {
-      setIsTokenPresent(true);
-    }
-  }, []);
+ // Clear the cookies
+    Cookies.remove('ltpaToken');
+    Cookies.remove('token');
