@@ -1,3 +1,232 @@
- // Clear the cookies
-    Cookies.remove('ltpaToken');
-    Cookies.remove('token');
+import { Layout } from "antd";
+import "./App.css";
+import "./Header.css";
+import "./font.css";
+import { useEffect } from "react";
+import axiosConnect from "./api/axiosConnect";
+import React, { useState } from "react";
+import DagreFlowChart from "./DagreFlowChart";
+import { Modal, Button, Input, Select } from "antd";
+import Cookies from "js-cookie";
+import logo from "./assets/images/logo.png";
+
+function App() {
+  const [jsonData, setJsonData] = useState("");
+  const [showTable, setShowTable] = useState(false);
+
+  const [visible, setVisible] = useState(true);
+  const [responseModalVisible, setResponseModalVisible] = useState(false);
+  const [isTokenPresent, setIsTokenPresent] = useState(false);
+  const [formData, setFormData] = useState({
+    MF_HOST: "",
+    MF_PORT: "",
+    MF_USER_ZOS: "",
+    MF_PASSWORD: "",
+  });
+  const [response, setResponse] = useState(null);
+  const { Option } = Select;
+  console.log("status of token for stage 1 ", isTokenPresent);
+  useEffect(() => {
+    console.log("formData updated:", formData);
+  }, [formData]);
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      setIsTokenPresent(true);
+    }
+  }, []);
+
+  const logoffSession = () => {
+    // Clear the cookies
+    Cookies.remove("ltpaToken");
+    Cookies.remove("token");
+    setVisible(true);
+    console.log("session is ", visible);
+  };
+  console.log("status of token for stage 2 ", isTokenPresent);
+  const handleOk = async () => {
+    setVisible(false);
+    try {
+      const response = await axiosConnect.post(
+        "/login",
+        formData, // Send formData in the body
+        {
+          withCredentials: true,
+        }
+      );
+      console.log("status of token for stage 3 ", isTokenPresent);
+      console.log("res is ", response.data);
+      const myResponse = JSON.stringify(response.data);
+      setResponse(myResponse);
+      setResponseModalVisible(true);
+      setIsTokenPresent(true);
+      console.log("status of token for stage 5 ", isTokenPresent);
+      // Extract the token and save it in a cookie
+      const token = response.data.token;
+      if (token) {
+        Cookies.set("token", token, { expires: 1 }); // The token will expire in 1 day
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+  };
+
+  const handleResponseModalOk = () => {
+    setResponseModalVisible(false);
+  };
+
+  const handleResponseModalCancel = () => {
+    setResponseModalVisible(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    console.log("formdata is ", formData);
+  };
+
+  const handleHostChange = (value) => {
+    const hostMapping = {
+      sysa: { host: "tplavipa.1dc.com", port: "443" },
+      sysb: { host: "bbb.com", port: "222" },
+      sysc: { host: "ccc.com", port: "333" },
+      sysd: { host: "ddd.com", port: "444" },
+      syse: { host: "eee.com", port: "555" },
+    };
+    setFormData({
+      ...formData,
+      MF_HOST: hostMapping[value].host,
+      MF_PORT: hostMapping[value].port,
+    });
+  };
+
+  console.log("status of token for stage 6 ", isTokenPresent);
+  const modalResponse = (
+    <Modal
+      title="Response"
+      visible={responseModalVisible}
+      onOk={handleResponseModalOk}
+      onCancel={handleResponseModalCancel}
+    >
+      <p>{response}</p>
+    </Modal>
+  );
+  const modalLogin = (
+    <Modal
+      title=""
+      width={1520}
+      visible={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      maskClosable={false}
+      style={{ fontFamily: "Quicksand" }} // Apply custom font to modal
+    >
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img
+          src={logo} // Update to your actual logo path
+          alt="Logo"
+          style={{
+            height: "320px",
+            marginRight: "20px",
+          }}
+        />
+        <div style={{ flex: 1 }}>
+          <p>Login to Mainframe</p>
+          <Input
+            placeholder="User Name"
+            name="MF_USER_ZOS"
+            value={formData.MF_USER_ZOS}
+            onChange={handleChange}
+          />
+          <p> </p>
+          <Input.Password
+            placeholder="Password"
+            name="MF_PASSWORD"
+            value={formData.MF_PASSWORD}
+            onChange={handleChange}
+          />
+          <p> </p>
+          <Select
+            placeholder="Select the Mainframe Lpar"
+            name="Select the system"
+            onChange={handleHostChange}
+            style={{ width: "100%", marginBottom: "16px" }}
+          >
+            <Option value="sysa">TPLA</Option>
+            <Option value="sysb">xxxx</Option>
+            <Option value="sysc">yyyy</Option>
+            <Option value="sysd">zzzz</Option>
+            <Option value="syse">aaaa</Option>
+          </Select>
+        </div>
+      </div>
+    </Modal>
+  );
+  return (
+    <>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          left: "-5px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+        className="mdc-layout-grid"
+      >
+        <header
+          style={{
+            height: "15%",
+            backgroundColor: "#000", // Trendy black color
+            color: "#fff", // White text color
+            display: "flex",
+            alignItems: "center",
+            padding: "0 20px", // Add some padding for better spacing
+            borderBottom: "2px solid #fff", // Optional: change border color to white or remove
+          }}
+        >
+          <img
+            src={logo}
+            alt="fund train logo"
+            style={{ height: "120px", marginRight: "auto" }} // Push logo to the left
+          />
+          <Button
+            type="default" // Use 'default' to remove default Ant Design button styles
+            onClick={logoffSession}
+            style={{
+              backgroundColor: "#fff", // White background
+              color: "#000", // Black text color
+              border: "none", // Remove default border
+              borderRadius: "4px", // Optional: add border-radius for rounded corners
+              padding: "0 16px", // Optional: adjust padding
+              fontFamily: "Quicksand, sans-serif", // Apply custom font
+            }}
+          >
+            Logoff
+          </Button>
+          {!isTokenPresent && modalLogin}
+          {modalResponse}
+        </header>
+
+        <div
+          style={{
+            height: "85%",
+            fontFamily: "Quicksand, sans-serif",
+            overflow: "auto",
+          }}
+        >
+          {isTokenPresent && <DagreFlowChart />}
+        </div>
+      </div>
+    </>
+  );
+}
+export default App;
