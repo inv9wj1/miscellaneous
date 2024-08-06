@@ -1,216 +1,67 @@
-import { Layout } from "antd";
-import "./App.css";
-import "./Header.css";
-import { useEffect } from "react";
-import axiosConnect from "./api/axiosConnect";
-import React, { useState } from "react";
-import DagreFlowChart from "./DagreFlowChart";
-import FileSpace from "./filespace/FileSpace";
-import { Modal, Button, Input, Select } from "antd";
-import Cookies from "js-cookie";
-import logo from "./assets/images/logo.png";
+import { Modal, Input, Select, Button } from "antd";
 
-function App() {
-  const [jsonData, setJsonData] = useState("");
-  const [showTable, setShowTable] = useState(false);
+const { Option } = Select;
 
-  const [visible, setVisible] = useState(true);
-  const [responseModalVisible, setResponseModalVisible] = useState(false);
-  const [isTokenPresent, setIsTokenPresent] = useState(false);
-  const [formData, setFormData] = useState({
-    MF_HOST: "",
-    MF_PORT: "",
-    MF_USER_ZOS: "",
-    MF_PASSWORD: "",
-  });
-  const [response, setResponse] = useState(null);
-  const { Option } = Select;
-  console.log("status of token for stage 1 ", isTokenPresent);
-  useEffect(() => {
-    console.log("formData updated:", formData);
-  }, [formData]);
-
-  const showModal = () => {
-    setVisible(true);
-  };
-  console.log("status of token for stage 2 ", isTokenPresent);
-  const handleOk = async () => {
-    setVisible(false);
-    try {
-      const response = await axiosConnect.post(
-        "/login",
-        formData, // Send formData in the body
-        {
-          withCredentials: true,
-        }
-      );
-      console.log("status of token for stage 3 ", isTokenPresent);
-      console.log("res is ", response.data);
-      const myResponse = JSON.stringify(response.data);
-      setResponse(myResponse);
-      setResponseModalVisible(true);
-      setIsTokenPresent(true);
-      console.log("status of token for stage 5 ", isTokenPresent);
-      // Extract the token and save it in a cookie
-      const token = response.data.token;
-      if (token) {
-        Cookies.set("token", token, { expires: 1 }); // The token will expire in 1 day
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleCancel = () => {
-    setVisible(false);
-  };
-
-  const handleResponseModalOk = () => {
-    setResponseModalVisible(false);
-  };
-
-  const handleResponseModalCancel = () => {
-    setResponseModalVisible(false);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    console.log("formdata is ", formData);
-  };
-
-  const handleHostChange = (value) => {
-    const hostMapping = {
-      sysa: { host: "tplavipa.1dc.com", port: "443" },
-      sysb: { host: "bbb.com", port: "222" },
-      sysc: { host: "ccc.com", port: "333" },
-      sysd: { host: "ddd.com", port: "444" },
-      syse: { host: "eee.com", port: "555" },
-    };
-    setFormData({
-      ...formData,
-      MF_HOST: hostMapping[value].host,
-      MF_PORT: hostMapping[value].port,
-    });
-  };
-
-  console.log("status of token for stage 6 ", isTokenPresent);
-
-  const modalResponse = (
-    <Modal
-      title="Response"
-      visible={responseModalVisible}
-      onOk={handleResponseModalOk}
-      onCancel={handleResponseModalCancel}
-    >
-      <p>{response}</p>
-    </Modal>
-  );
-
-  const modalLogin = (
-    <Modal
-      title="Login to Mainframe"
-      visible={visible}
-      onOk={handleOk}
-      onCancel={handleCancel}
-      maskClosable={true}
-    >
-      <Input
-        placeholder="User Name"
-        name="MF_USER_ZOS"
-        value={formData.MF_USER_ZOS}
-        onChange={handleChange}
-      />
-      <p> </p>
-      <Input
-        placeholder="Password"
-        name="MF_PASSWORD"
-        value={formData.MF_PASSWORD}
-        onChange={handleChange}
-      />
-      <p>Select the system</p>
-      <Select
-        placeholder="Select MF_HOST"
-        name="Select the system"
-        value={formData.MF_HOST}
-        onChange={handleHostChange}
-        style={{ width: "100%", marginBottom: "16px" }}
+const modalLogin = (
+  <Modal
+    title=""
+    width={1520}
+    visible={visible}
+    onCancel={handleCancel}
+    maskClosable={false}
+    footer={[
+      <Button key="login" type="primary" onClick={handleOk}>
+        Login
+      </Button>,
+      <Button
+        key="help"
+        type="link"
+        onClick={handleHelp}
+        style={{ textDecoration: "underline" }}
       >
-        <Option value="sysa">TPLA</Option>
-        <Option value="sysb">xxxx</Option>
-        <Option value="sysc">yyyy</Option>
-        <Option value="sysd">zzzz</Option>
-        <Option value="syse">aaaa</Option>
-      </Select>
-    </Modal>
-  );
-  return (
-    <>
-      <div
+        Need Help?
+      </Button>,
+    ]}
+    style={{ fontFamily: "Quicksand" }} // Apply custom font to modal
+  >
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <img
+        src={logo} // Update to your actual logo path
+        alt="Logo"
         style={{
-          width: "100%",
-          height: "100%",
-          left: "-5px",
-          border: "2px solid #fc6500",
+          height: "320px",
+          marginRight: "20px",
         }}
-        className="mdc-layout-grid"
-      >
-        <div style={{ height: "15%", border: "2px solid #fc6500" }}>
-          <div className="mdc-layout-grid__inner">
-            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
-              {/* <Header /> */}
-              <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
-                <div id="u842" className="ax_default image">
-                  <img
-                    id="u842_img"
-                    className="img"
-                    src={require("./assets/images/fiservlogo.png")}
-                    alt="fiserv logo"
-                  />
-                  <div id="u877" className="ax_default line">
-                    <img
-                      id="u877_img"
-                      className="img"
-                      src={require("./assets/images/line.png")}
-                      alt="line"
-                    />
-                  </div>
-
-                  <div
-                    className="title"
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "left",
-                    }}
-                  >
-                    <Button type="primary" onClick={showModal}>
-                      Login
-                    </Button>
-                    <img
-                      src={logo}
-                      alt="fund train logo"
-                      style={{ height: "84px" }}
-                    />
-                    {modalLogin}
-                    {modalResponse}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <br />
-          <br />
-        </div>
-
-        <div style={{ height: "85%", border: "2px solid #fc6500" }}>
-          <FileSpace />
-        </div>
+      />
+      <div style={{ flex: 1 }}>
+        <p>Login to Mainframe</p>
+        <Input
+          placeholder="User Name"
+          name="MF_USER_ZOS"
+          value={formData.MF_USER_ZOS}
+          onChange={handleChange}
+        />
+        <p> </p>
+        <Input.Password
+          placeholder="Password"
+          name="MF_PASSWORD"
+          value={formData.MF_PASSWORD}
+          onChange={handleChange}
+        />
+        <p> </p>
+        <Select
+          placeholder="Select the Mainframe Lpar"
+          name="Select the system"
+          onChange={handleHostChange}
+          style={{ width: "100%", marginBottom: "16px" }}
+        >
+          <Option value="sysa">TPLA</Option>
+          <Option value="sysb">xxxx</Option>
+          <Option value="sysc">yyyy</Option>
+          <Option value="sysd">zzzz</Option>
+          <Option value="syse">aaaa</Option>
+        </Select>
       </div>
-    </>
-  );
-}
-export default App;
+    </div>
+  </Modal>
+);
