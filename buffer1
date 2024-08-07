@@ -1,7 +1,9 @@
-//LISTGDG  JOB  (ACCT),'LIST GDG',CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1)
-//STEP1    EXEC PGM=IDCAMS
-//SYSPRINT DD   SYSOUT=*
-//SYSIN    DD   *
-  LISTCAT ENTRIES(your.gdg.base) ALL
-/*
-//
+ try {
+          JSON.parse(responseStr);
+          res.status(200).json(JSON.parse(responseStr));
+        } catch (error) {
+          console.log(error);
+          res
+            .status(200)
+            .json({ message: "Invalid JSON format from Mainframe" });
+        }
