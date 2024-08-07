@@ -1,67 +1,7 @@
-import { Modal, Input, Select, Button } from "antd";
-
-const { Option } = Select;
-
-const modalLogin = (
-  <Modal
-    title=""
-    width={1520}
-    visible={visible}
-    onCancel={handleCancel}
-    maskClosable={false}
-    footer={[
-      <Button key="login" type="primary" onClick={handleOk}>
-        Login
-      </Button>,
-      <Button
-        key="help"
-        type="link"
-        onClick={handleHelp}
-        style={{ textDecoration: "underline" }}
-      >
-        Need Help?
-      </Button>,
-    ]}
-    style={{ fontFamily: "Quicksand" }} // Apply custom font to modal
-  >
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <img
-        src={logo} // Update to your actual logo path
-        alt="Logo"
-        style={{
-          height: "320px",
-          marginRight: "20px",
-        }}
-      />
-      <div style={{ flex: 1 }}>
-        <p>Login to Mainframe</p>
-        <Input
-          placeholder="User Name"
-          name="MF_USER_ZOS"
-          value={formData.MF_USER_ZOS}
-          onChange={handleChange}
-        />
-        <p> </p>
-        <Input.Password
-          placeholder="Password"
-          name="MF_PASSWORD"
-          value={formData.MF_PASSWORD}
-          onChange={handleChange}
-        />
-        <p> </p>
-        <Select
-          placeholder="Select the Mainframe Lpar"
-          name="Select the system"
-          onChange={handleHostChange}
-          style={{ width: "100%", marginBottom: "16px" }}
-        >
-          <Option value="sysa">TPLA</Option>
-          <Option value="sysb">xxxx</Option>
-          <Option value="sysc">yyyy</Option>
-          <Option value="sysd">zzzz</Option>
-          <Option value="syse">aaaa</Option>
-        </Select>
-      </div>
-    </div>
-  </Modal>
-);
+//LISTGDG  JOB  (ACCT),'LIST GDG',CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1)
+//STEP1    EXEC PGM=IDCAMS
+//SYSPRINT DD   SYSOUT=*
+//SYSIN    DD   *
+  LISTCAT ENTRIES(your.gdg.base) ALL
+/*
+//
